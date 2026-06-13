@@ -1,45 +1,47 @@
 # Technical Specifications
 ### Autonomous Platform Crowd-Balancing Agent
 **Hackathon:** FAR AWAY 2026 (Zuup Japan) — Theme: Railways
-**Status:** Draft v1.0 · **Last updated:** 2026-06-14
+**Status:** Draft v1.1 · **Last updated:** 2026-06-14 · **Agent:** layered hierarchical multi-agent
 
 ---
 
 ## 1. System Architecture
 
 ```
-                          ┌──────────────────────────────────────────────┐
-  PERCEPTION LAYER        │                                              │
-                          ▼                                              │
- ┌─────────────┐   ┌──────────────┐   ┌──────────────┐   ┌────────────┐ │
- │ Gate Scanner│──▶│  Backend     │──▶│ Live Data    │──▶│ Trend Graph│ │
- │ (QR/IoT)    │   │  (FastAPI)   │   │ Store        │   │ (Recharts) │ │
- │ platform+   │   │ log arrival  │   │ time-series  │   └────────────┘ │
- │ train only  │   │ event        │   │ density/%    │                  │
- └─────────────┘   └──────────────┘   └──────┬───────┘                  │
-                                             │                          │
- ┌─────────────┐   ┌──────────────┐          │                          │
- │ CCTV/Webcam │──▶│ Density      │──────────┘                          │
- │ per platform│   │ Estimator    │                                     │
- │             │   │ YOLOv8+OpenCV│                                     │
- └─────────────┘   └──────────────┘                                     │
-                                             │                          │
-                          ┌──────────────────▼───────────────────┐      │
-  DECISION LAYER          │   AGENTIC DECISION CORE               │      │
-                          │   (LangGraph + Claude)                │      │
-                          │   perceive → evaluate → decide → act  │──────┘ (log/learn)
-                          │   rule engine (hard) + LLM (nuance)   │
-                          └───┬────────┬────────┬─────────┬───────┘
+  PERCEPTION (signals)
+ ┌─────────────┐   ┌──────────────┐   ┌──────────────┐   ┌────────────┐
+ │ Gate Scanner│──▶│  Backend     │──▶│ Live Data    │──▶│ Trend Graph│
+ │ platform+   │   │  (FastAPI)   │   │ Store        │   │ (Recharts) │
+ │ train only  │   │ log arrival  │   │ time-series  │   └────────────┘
+ └─────────────┘   └──────────────┘   └──────┬───────┘
+ ┌─────────────┐   ┌──────────────┐          │
+ │ CCTV/Webcam │──▶│ Density      │──────────┤
+ │ per platform│   │ YOLOv8+OpenCV│          │
+ └─────────────┘   └──────────────┘          ▼  GET /api/state
+            ╔═══════════════════════════════════════════════════════╗
+  DECISION  ║         🎯 STATION SUPERVISOR AGENT (orchestrator)      ║
+  (multi-   ║                        │                               ║
+   agent    ║          ┌─────────────┼─────────────┐  ◀ parallel     ║
+   hier-    ║       👥 Crowd      🚆 Train       🛡️ Safety            ║
+   archy)   ║        Agent        Agent          Agent               ║
+            ║          └─────────────┼─────────────┘                  ║
+            ║                  🧠 Decision Agent   (synthesize+plan)   ║
+            ║                        │  (hard safety gate)             ║
+            ║                  ⚡ Action Agent     (execute plan)       ║
+            ╚═══════════════════════════╤═══════════════════════════════╝
                               │        │        │         │
-  ACTION LAYER          ┌─────▼──┐ ┌───▼────┐ ┌─▼──────┐ ┌▼──────────┐
+  ACTION                ┌─────▼──┐ ┌───▼────┐ ┌─▼──────┐ ┌▼──────────┐
                         │ Train  │ │ TTS    │ │Signage │ │ Control   │
                         │ Hold   │ │Announce│ │Displays│ │ Room      │
                         │ Signal │ │(voice) │ │red/grn │ │ Dashboard │
                         └────────┘ └────────┘ └────────┘ └───────────┘
 ```
 
-The system is organized in three layers: **Perception** (gather signals),
-**Decision** (the agent core), and **Action** (act on infrastructure + inform people).
+The system has three layers — **Perception** (gather signals), **Decision** (a
+hierarchical multi-agent core), and **Action** (act on infrastructure + inform people).
+The decision core is a **layered multi-agent hierarchy**: a Station Supervisor fans out
+to three parallel perception agents (Crowd / Train / Safety), whose reports a Decision
+Agent synthesizes into a safety-validated plan, which an Action Agent executes.
 
 ---
 
@@ -93,14 +95,18 @@ The system is organized in three layers: **Perception** (gather signals),
 - Holds only aggregate, anonymous records (see [Schema.md]).
 - TTL-based expiry job purges records after train departure.
 
-### 3.5 Agentic Decision Core
-- **Framework:** LangGraph state graph implementing the 5-step loop (§4).
-- **Hybrid control:** a deterministic **rule engine** (hard safety thresholds) runs
-  first and always; the **LLM** handles nuanced multi-platform tradeoffs and drafts
-  announcement wording. The LLM **cannot** override a hard rule.
-- **Cadence:** loop tick every **15–30s** (configurable).
-- **Determinism:** rule outcomes are reproducible; LLM calls use low temperature for
-  stable phrasing.
+### 3.5 Agentic Decision Core — Hierarchical Multi-Agent System
+- **Architecture:** a layered hierarchy, not a single agent:
+  - **🎯 Station Supervisor Agent** — orchestrates each tick; fans out to the parallel layer, collects reports, drives Decision → Action.
+  - **👥 Crowd Agent** *(parallel)* — analyzes density + trend; flags RED-and-rising platforms.
+  - **🚆 Train Agent** *(parallel)* — schedule view: next-train ETAs + holdability (exists & not already held → no-thrash).
+  - **🛡️ Safety Agent** *(parallel)* — zone classification, RED breaches, **fail-safe** flag, and the **hard safety gate** (`validate_plan`).
+  - **🧠 Decision Agent** — synthesizes the three reports → a safety-validated `Plan` (hold + redirect + announce, or hold-only).
+  - **⚡ Action Agent** — turns the plan into executable side effects (hold call, signage/redirect WS messages, calm bilingual wording) + the `AgentDecision` record.
+- **Hybrid control:** the **Safety Agent's gate is authoritative**; the **LLM** only chooses among already-safe options and drafts wording. The LLM **cannot** widen what the rules allow — every plan is re-validated before execution.
+- **Framework:** LangGraph expresses the hierarchy (Supervisor → Crowd ∥ Train ∥ Safety → Decision → Action). The in-process runner invokes the same agent functions directly for single-process demo reliability; both are parity-tested.
+- **Cadence:** autonomous background loop every **15–30s** (configurable) + a manual `POST /api/agent/tick` for demo control.
+- **Determinism:** rule outcomes are reproducible; default wording is template-based (no API key needed). LLM calls (when a key is set) use low temperature; on any error they fall back to templates.
 
 ### 3.6 Action Interfaces
 | Action | Interface | Demo behavior |
@@ -112,15 +118,20 @@ The system is organized in three layers: **Perception** (gather signals),
 
 ---
 
-## 4. Agent Decision Loop (Detailed)
+## 4. Agent Decision Loop (Detailed) — by agent
 
-| Step | What it does | Tooling |
-|------|--------------|---------|
-| **1. Perceive** | Pull live density % per platform, ticket-scan arrival rate, upcoming train ETAs | OpenCV + YOLOv8, FastAPI event stream |
-| **2. Evaluate** | Classify each platform vs thresholds: **Green <60%, Yellow 60–85%, Red >85%** | Rule engine (Python) |
-| **3. Decide** | If Red + nearby Green/Yellow platform with near-term train → plan: **hold + redirect + announce**. LLM drafts exact wording & decides urgency/phrasing | LangGraph + Claude |
-| **4. Act** | Send hold-signal to scheduling API; push redirect to displays; trigger TTS; update signage colors | REST (scheduling, TTS), WebSocket (displays) |
-| **5. Log & Learn** | Log every decision + outcome (did density normalize?) to time-series; render on dashboard | Pandas + Recharts |
+Each tick flows through the hierarchy:
+
+| Stage | Agent(s) | What it does |
+|-------|----------|--------------|
+| **Perceive** | Station Supervisor | Pull live snapshot (`GET /api/state`): per-platform density %, zone, trend, arrival rate, next-train ETA |
+| **Analyze (parallel)** | 👥 Crowd · 🚆 Train · 🛡️ Safety | Crowd: flag RED+rising. Train: ETAs + holdability. Safety: zones, RED breaches, fail-safe flag |
+| **Decide** | 🧠 Decision Agent | Synthesize the 3 reports → pick best safe alternative → build `Plan` (hold ≤cap + redirect *suggestion* + announce, or hold-only). **Safety gate validates** before it leaves |
+| **Act** | ⚡ Action Agent | Hold-signal to scheduling; redirect suggestion + signage colors to displays (WS); calm bilingual announcement wording; emit `agent_action` to dashboard |
+| **Log & Learn** | Supervisor / runner | Record `AgentDecision` + reasoning; mark outcome when the platform clears RED |
+
+Thresholds: **Green <60%, Yellow 60–85%, Red >85%**. Tooling: YOLOv8/OpenCV + FastAPI
+(perceive), Python agents + LangGraph (decide), REST/WebSocket (act), dashboard feed (log).
 
 ### 4.1 Decision rule (pseudocode)
 ```python

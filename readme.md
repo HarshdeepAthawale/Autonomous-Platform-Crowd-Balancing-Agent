@@ -55,6 +55,10 @@ updating signage, and making calm announcements — with **zero human interventi
 
 ## 🏗️ System Architecture
 
+A **layered hierarchical multi-agent system** sits at the core: a Station Supervisor fans
+out to three parallel agents (Crowd / Train / Safety), a Decision Agent synthesizes their
+reports into a safety-validated plan, and an Action Agent executes it.
+
 ```mermaid
 flowchart TD
     subgraph Perception
@@ -63,8 +67,17 @@ flowchart TD
         CV --> BE
         BE --> LDS["Live Data Store<br/>aggregate, anonymous, TTL"]
     end
-    LDS --> AG["AGENTIC DECISION CORE<br/>LangGraph + Claude<br/>rule engine + LLM"]
-    AG --> ACT
+    LDS --> SUP["🎯 Station Supervisor Agent"]
+    subgraph Decision["Hierarchical Multi-Agent Core (LangGraph)"]
+        SUP --> CR["👥 Crowd Agent"]
+        SUP --> TR["🚆 Train Agent"]
+        SUP --> SA["🛡️ Safety Agent"]
+        CR --> DEC["🧠 Decision Agent"]
+        TR --> DEC
+        SA --> DEC
+        DEC --> AA["⚡ Action Agent"]
+    end
+    AA --> ACT
     subgraph ACT["Action Layer"]
         HOLD["🚆 Hold train signal"]
         RED["🧭 Redirect suggestion"]
@@ -74,10 +87,12 @@ flowchart TD
     end
 ```
 
-**Flow:** scan ticket → log anonymous arrival → cameras estimate density → agent fuses
-arrivals + density + schedule → on Red-zone + safe neighbor, it holds the train, suggests
-redirect, announces calmly, and updates signage → every decision is logged with
-plain-English reasoning for human oversight (not control).
+**Flow:** scan ticket → log anonymous arrival → cameras estimate density → Supervisor
+perceives state → Crowd/Train/Safety analyze in parallel → Decision Agent builds a
+safety-validated plan → Action Agent holds the train, suggests a redirect, announces
+calmly, updates signage → every decision is logged with plain-English reasoning for human
+oversight (not control). The **Safety Agent's gate is authoritative** — the LLM can never
+produce an unsafe action.
 
 **Zones:** 🟩 Green `<60%` · 🟨 Yellow `60–85%` · 🟥 Red `>85%`
 
@@ -91,7 +106,7 @@ plain-English reasoning for human oversight (not control).
 | Crowd Detection | YOLOv8 (Ultralytics), OpenCV | Real-time per-platform person counting |
 | Data & Trends | Pandas, NumPy | Rolling density %, trend detection |
 | Visualization | Recharts, matplotlib | Live density graphs, zone heatmaps |
-| Agent Core | LangGraph | Perceive → decide → act orchestration |
+| Agent Core | LangGraph (hierarchical multi-agent) | Supervisor → Crowd∥Train∥Safety → Decision → Action |
 | Reasoning | Claude (`claude-haiku-4-5` / `claude-opus-4-8`) | Decisions + calm announcement drafting |
 | Voice | ElevenLabs / gTTS | Calm, bilingual station announcements |
 | Backend | FastAPI + WebSockets | Real-time event handling, live push |
@@ -124,7 +139,7 @@ Full planning suite lives in this repo:
 | 0 — Planning & Docs | ✅ Complete | 8 docs: PRD, TechSpec, AppFlow, Design, Schema, Plan, Tracker, Rules |
 | 1 — Backend Skeleton | ✅ Complete | FastAPI + WS + TTL expiry · 15/15 tests pass |
 | 2 — Computer Vision | ✅ Complete | YOLOv8 + synthetic fallback · 19/19 tests · real YOLO inference pending on-device run |
-| 3 — Agentic Core | 🔲 Not started | LangGraph + Claude |
+| 3 — Agentic Core | ✅ Complete | Hierarchical multi-agent (Supervisor→Crowd∥Train∥Safety→Decision→Action) · 29/29 agent + 3 backend tests |
 | 4 — Frontend | 🔲 Not started | React + Tailwind wa-modern |
 | 5 — Integration & Demo | 🔲 Not started | EC2 deploy + privacy proof |
 

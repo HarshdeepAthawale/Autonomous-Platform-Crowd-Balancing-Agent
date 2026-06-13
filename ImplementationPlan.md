@@ -51,23 +51,30 @@ with privacy-safe storage and WebSockets.
 
 ---
 
-## Phase 3 — Agentic Decision Core (centerpiece)
-**Goal:** LangGraph agent running the perceive→evaluate→decide→act→log loop with a hard
-rule engine + Claude reasoning.
+## Phase 3 — Agentic Decision Core (centerpiece) — Hierarchical Multi-Agent
+**Goal:** A layered multi-agent hierarchy — **Station Supervisor → (Crowd ∥ Train ∥
+Safety) → Decision → Action** — replacing a single flat agent. Hard safety gate is
+authoritative; the LLM only drafts wording.
 
 **Tasks**
-1. Rule engine: zone classification + hard safety rules (hold cap, no redirect into
-   crowded platform, fail-safe on stale signal).
-2. LangGraph state graph for the 5-step loop on a 15–30s tick.
-3. Claude integration (`claude-haiku-4-5`, low temp) for tradeoff selection + calm
-   announcement drafting; rule engine remains authoritative.
-4. Action emitters: hold-signal (mock API), redirect suggestion (WS), TTS trigger,
-   signage update (WS).
-5. Log & Learn: write `AgentDecision` with reasoning + outcome (density-after).
-6. Fallback path: rule-engine-only + template announcements if LLM unavailable.
+1. **Safety Agent:** zone view + the hard safety gate (`validate_plan`: hold cap, no
+   redirect into a crowded platform) + fail-safe on stale/missing signals.
+2. **Parallel perception layer:** Crowd Agent (density+trend, RED-rising), Train Agent
+   (ETAs + holdability/no-thrash), Safety Agent — run independently.
+3. **Supervisor + Decision + Action agents:** Supervisor fans out & collects; Decision
+   synthesizes reports → validated `Plan`; Action emits side effects.
+4. **LangGraph graph:** fan-out (Supervisor → 3 parallel) / fan-in (→ Decision → Action),
+   parity-tested against the in-process runner.
+5. **Action emitters:** hold-signal (capped), redirect *suggestion* (WS), calm bilingual
+   announcement wording, signage update (WS); `AgentDecision` to dashboard.
+6. **Log & Learn + fallback:** write `AgentDecision` + outcome (density-after);
+   rule + template wording by default, Claude (`claude-haiku-4-5`) optional + auto-fallback.
+7. **Backend integration:** in-process runner, `POST /api/agent/tick` + autonomous loop.
 
-**Deliverable:** Agent autonomously detects RED + acts (hold/redirect/announce) with logged reasoning.
-**Exit criteria:** Worked example (A=92%, B=35%) triggers correct plan with plain-English log.
+**Deliverable:** The hierarchy autonomously detects RED + acts (hold/redirect/announce)
+with logged plain-English reasoning.
+**Exit criteria:** Worked example (A=92%, B=35%) triggers the correct plan; safety gate
+rejects unsafe plans; rule-only fallback works with no API key.
 
 ---
 

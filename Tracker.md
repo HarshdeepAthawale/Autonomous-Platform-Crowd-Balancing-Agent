@@ -14,7 +14,7 @@
 | 0 | Planning & Docs | ✅ Done | 8/8 docs |
 | 1 | Foundation & Backend Skeleton | ✅ Done | 8/8 · 15 tests pass |
 | 2 | Computer Vision Density Pipeline | ✅ Done* | 6/6 · 19 tests · *real YOLO inference pending on-device run |
-| 3 | Agentic Decision Core | 🔲 Not started | 0/6 |
+| 3 | Agentic Decision Core (hierarchical multi-agent) | ✅ Done | 6/6 · 32 tests pass |
 | 4 | Frontend: Dashboard, Displays & TTS | 🔲 Not started | 0/8 |
 | 5 | Integration, Privacy Proof & Demo | 🔲 Not started | 0/8 |
 
@@ -60,15 +60,18 @@
 
 ---
 
-## Phase 3 — Agentic Decision Core 🔲
+## Phase 3 — Agentic Decision Core (hierarchical multi-agent) ✅
+Architecture: Station Supervisor → (Crowd ∥ Train ∥ Safety) → Decision → Action.
+
 | # | Task | Status | Owner | Notes |
 |---|------|--------|-------|-------|
-| 3.1 | Rule engine: zones + hard safety rules | 🔲 | | LLM cannot override |
-| 3.2 | LangGraph 5-step loop (15–30s tick) | 🔲 | | |
-| 3.3 | Claude integration (haiku-4-5, low temp) | 🔲 | | tradeoffs + wording |
-| 3.4 | Action emitters (hold/redirect/TTS/signage) | 🔲 | | |
-| 3.5 | Log & Learn (AgentDecision + outcome) | 🔲 | | |
-| 3.6 | Rule-only fallback (LLM down) | 🔲 | | |
+| 3.1 | Safety Agent: zones + hard safety gate | ✅ | | `validate_plan`, fail-safe; LLM cannot override |
+| 3.2 | Parallel agents: Crowd / Train / Safety | ✅ | | independent analyses |
+| 3.3 | Supervisor + Decision + Action agents | ✅ | | synthesize → plan → execute |
+| 3.4 | LangGraph graph (fan-out/fan-in) | ✅ | | parity-tested vs in-process runner |
+| 3.5 | Action emitters (hold/redirect/signage/announce) | ✅ | | calm bilingual wording |
+| 3.6 | Log & Learn + rule-only fallback | ✅ | | AgentDecision + outcome; Claude off by default |
+| 3.7 | Backend integration | ✅ | | `/api/agent/tick` + autonomous background loop |
 
 ---
 
@@ -103,7 +106,9 @@
 ## Blockers & Decisions Log
 | Date | Item | Decision / Status |
 |------|------|-------------------|
-| 2026-06-14 | Agent framework | LangGraph (recommended) vs CrewAI — **pending confirm** |
+| 2026-06-14 | Agent framework | **LangGraph — confirmed.** Hierarchical multi-agent (Supervisor → Crowd∥Train∥Safety → Decision → Action) |
+| 2026-06-14 | Agent architecture | **Layered hierarchical multi-agent — confirmed** (replaced flat decision engine) |
+| 2026-06-14 | Claude API key | **Not available yet — confirmed.** Rule + template (bilingual) wording active; Claude code-ready, off by default |
 | 2026-06-14 | TTS provider | ElevenLabs free tier vs gTTS — **pending confirm** |
 | 2026-06-14 | Persistence | In-memory + time-series vs SQLite/Redis — **pending confirm** |
 

@@ -36,28 +36,37 @@ fused live state, which the agent polls on every tick and acts upon.
 
 ---
 
-## 3. Agent Decision Loop (every 15–30s)
+## 3. Agent Decision Loop — Hierarchical Multi-Agent (every 15–30s)
+
+A **Station Supervisor** fans out to three **parallel** perception agents, whose reports
+a **Decision Agent** synthesizes into a safety-validated plan that an **Action Agent**
+executes.
 
 ```mermaid
 flowchart TD
-    A["1. PERCEIVE<br/>density %, arrival rate, train ETAs"] --> B["2. EVALUATE<br/>classify zones<br/>Green &lt;60 / Yellow 60-85 / Red &gt;85"]
-    B --> C{"Any platform RED<br/>and rising?"}
-    C -- No --> L["5. LOG<br/>record state, update graph"]
-    C -- Yes --> D{"Nearby platform<br/>Green/Yellow with<br/>near-term train?"}
-    D -- No --> E["Hold only + alert operator<br/>no safe redirect target"]
-    D -- Yes --> F["3. DECIDE<br/>plan: hold + redirect + announce<br/>LLM drafts wording"]
-    F --> G["4. ACT"]
-    E --> G
-    G --> G1["Hold signal → scheduling API"]
-    G --> G2["Redirect suggestion → displays"]
-    G --> G3["TTS announcement"]
-    G --> G4["Signage red/green + counts"]
-    G1 --> L
-    G2 --> L
-    G3 --> L
-    G4 --> L
-    L --> A
+    P["PERCEIVE<br/>GET /api/state snapshot"] --> SUP["🎯 Station Supervisor Agent"]
+    SUP --> CR["👥 Crowd Agent<br/>density + trend<br/>flag RED &amp; rising"]
+    SUP --> TR["🚆 Train Agent<br/>ETAs + holdability<br/>(no-thrash)"]
+    SUP --> SA["🛡️ Safety Agent<br/>zones, breaches<br/>fail-safe + hard gate"]
+    CR --> DEC["🧠 Decision Agent<br/>synthesize reports<br/>pick safe target → Plan"]
+    TR --> DEC
+    SA --> DEC
+    DEC --> CHK{"safe plan?<br/>(Safety gate)"}
+    CHK -- No / all safe / fail-safe --> L["LOG<br/>record state, no action"]
+    CHK -- Yes --> ACT["⚡ Action Agent"]
+    ACT --> G1["Hold signal → scheduling API (capped)"]
+    ACT --> G2["Redirect suggestion → displays"]
+    ACT --> G3["TTS announcement (calm, bilingual)"]
+    ACT --> G4["Signage red/green + counts"]
+    ACT --> L2["LOG decision + reasoning"]
+    G1 --> L2
+    L2 --> P
+    L --> P
 ```
+
+> The Safety Agent's gate is authoritative — the Decision/LLM layer can never produce a
+> hold over the cap or a redirect into a crowded platform. On stale/missing data the
+> Safety Agent raises **fail-safe → no action**.
 
 ---
 
@@ -95,30 +104,27 @@ announcements.**
 
 ```mermaid
 sequenceDiagram
-    participant Cam as Camera/YOLOv8
     participant BE as Backend FastAPI
-    participant AG as Agent LangGraph
-    participant LLM as Claude
+    participant SUP as Supervisor Agent
+    participant PAR as Crowd/Train/Safety (parallel)
+    participant DEC as Decision Agent
+    participant ACT as Action Agent
     participant SCH as Scheduling mock
     participant DSP as Displays/Signage
-    participant TTS as TTS
     participant DSH as Dashboard
 
-    loop every frame
-        Cam->>BE: density reading
-    end
-    loop every 15-30s
-        AG->>BE: GET /api/state - perceive
-        AG->>AG: evaluate zones - rule engine
-        alt RED + safe target
-            AG->>LLM: draft announcement + phrasing
-            LLM-->>AG: wording + reasoning
-            AG->>SCH: POST hold - capped, reversible
-            AG->>DSP: redirect suggestion + colors
-            AG->>TTS: play announcement
-            AG->>DSH: action log entry + reason
-        else safe / no target
-            AG->>DSH: log state only
+    loop every 15-30s (or manual tick)
+        SUP->>BE: GET /api/state - perceive snapshot
+        SUP->>PAR: fan out (parallel)
+        PAR-->>DEC: Crowd + Train + Safety reports
+        DEC->>DEC: synthesize -> Plan; Safety gate validates
+        alt act (RED + safe plan)
+            DEC->>ACT: validated Plan
+            ACT->>SCH: POST hold - capped, reversible
+            ACT->>DSP: redirect suggestion + signage colors
+            ACT->>DSH: agent_action + calm bilingual wording
+        else no action (all safe / no target / fail-safe)
+            DEC->>DSH: log state only
         end
     end
 ```
