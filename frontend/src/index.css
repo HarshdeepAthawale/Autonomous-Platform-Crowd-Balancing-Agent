@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ai:       #1B2A4A;
+  --color-ai-light: #243356;
+  --color-ai-dim:   #2A3A5C;
+  --color-hanada:   #2E6F95;
+  --color-moegi:    #5C8A3A;
+  --color-yamabuki: #E8A33D;
+  --color-shu:      #D7483B;
+  --color-hi:       #B8352C;
+  --color-sumi:     #1A1A1A;
+  --color-kinari:   #F7F4ED;
+  --color-muted:    #8A9BB5;
+
+  --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 14px;
+  --radius-chip: 9999px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  background-color: #1B2A4A;
+  color: #F7F4ED;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
+}
+
+#root { min-height: 100vh; }
+
+@keyframes breathe {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+.breathe { animation: breathe 2.2s ease-in-out infinite; }
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.slide-in { animation: slide-in 0.35s cubic-bezier(0.4,0,0.2,1) both; }
+
+@keyframes zone-transition {
+  from { opacity: 0.7; }
+  to   { opacity: 1; }
+}
+.zone-change { animation: zone-transition 0.45s ease both; }
