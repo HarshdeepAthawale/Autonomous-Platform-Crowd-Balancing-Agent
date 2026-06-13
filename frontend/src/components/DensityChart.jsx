@@ -29,8 +29,8 @@ function buildMergedSeries(graphSeries) {
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
-    <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E1D8', borderRadius: 10, padding: '10px 14px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-      <p style={{ color: '#6B7280', fontSize: 11, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</p>
+    <div style={{ backgroundColor: '#FDFBF6', border: '1px solid #E7DECE', borderRadius: 10, padding: '10px 14px', boxShadow: '0 4px 16px rgba(80,55,20,0.10)' }}>
+      <p style={{ color: '#6E6356', fontSize: 11, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</p>
       {payload.map(p => (
         <p key={p.dataKey} style={{ color: p.color, fontSize: 13, margin: '2px 0', fontWeight: 600 }}>
           Platform {p.dataKey}: {p.value != null ? `${Math.round(p.value)}%` : '—'}
@@ -46,58 +46,58 @@ export default function DensityChart({ graphSeries }) {
 
   return (
     <div style={{
-      backgroundColor: '#FFFFFF',
-      border: '1px solid #E5E1D8',
+      backgroundColor: '#FDFBF6',
+      border: '1px solid #E7DECE',
       borderRadius: 16,
       padding: '24px 28px',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+      boxShadow: '0 1px 2px rgba(80,55,20,0.04), 0 6px 20px rgba(80,55,20,0.05)',
     }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
-          <p style={{ color: '#6B7280', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 3px' }}>
+          <p style={{ color: '#A99E8C', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.14em', margin: '0 0 4px' }}>
             Density Over Time
           </p>
-          <p style={{ color: '#1A1A1A', fontSize: 15, fontWeight: 600, margin: 0 }}>Platform Comparison</p>
+          <p style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 17, fontWeight: 700, margin: 0 }}>Platform Comparison</p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           {platformIds.map((pid, i) => (
             <div key={pid} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ width: 20, height: 2, backgroundColor: PLATFORM_COLORS[i % PLATFORM_COLORS.length], display: 'inline-block', borderRadius: 2 }} />
-              <span style={{ color: '#6B7280', fontSize: 12 }}>Platform {pid}</span>
+              <span style={{ color: '#6E6356', fontSize: 12 }}>Platform {pid}</span>
             </div>
           ))}
-          <div style={{ width: 1, height: 14, backgroundColor: '#E5E1D8' }} />
+          <div style={{ width: 1, height: 14, backgroundColor: '#E7DECE' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ color: '#E8A33D', fontSize: 13 }}>—</span>
-            <span style={{ color: '#6B7280', fontSize: 11 }}>60%</span>
+            <span style={{ color: '#6E6356', fontSize: 11 }}>60%</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ color: '#D7483B', fontSize: 13 }}>—</span>
-            <span style={{ color: '#6B7280', fontSize: 11 }}>85%</span>
+            <span style={{ color: '#6E6356', fontSize: 11 }}>85%</span>
           </div>
         </div>
       </div>
 
       {data.length === 0 ? (
         <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <p style={{ color: '#9CA3AF', fontSize: 13 }}>Waiting for data…</p>
+          <p style={{ color: '#A99E8C', fontSize: 13 }}>Waiting for data…</p>
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={220}>
           <LineChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: -10 }}>
-            <CartesianGrid strokeDasharray="2 4" stroke="#F0EEE9" vertical={false} />
+            <CartesianGrid strokeDasharray="2 4" stroke="#EFE7D9" vertical={false} />
             <XAxis
               dataKey="label"
-              tick={{ fill: '#9CA3AF', fontSize: 10 }}
-              axisLine={{ stroke: '#E5E1D8' }}
+              tick={{ fill: '#A99E8C', fontSize: 10 }}
+              axisLine={{ stroke: '#E7DECE' }}
               tickLine={false}
               interval="preserveStartEnd"
             />
             <YAxis
               domain={[0, 100]}
-              tick={{ fill: '#9CA3AF', fontSize: 10 }}
+              tick={{ fill: '#A99E8C', fontSize: 10 }}
               axisLine={false}
               tickLine={false}
               tickFormatter={v => `${v}%`}
