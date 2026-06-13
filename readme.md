@@ -111,7 +111,8 @@ produce an unsafe action.
 | Voice | ElevenLabs / gTTS | Calm, bilingual station announcements |
 | Backend | FastAPI + WebSockets | Real-time event handling, live push |
 | Frontend | React + Tailwind CSS | Wa-modern control-room dashboard & signage |
-| Hosting | AWS EC2 | Backend + video processing for the demo |
+| Frontend Hosting | Vercel | React build, static serving |
+| Backend Hosting | Railway | FastAPI + WebSocket + agent loop |
 
 ---
 
@@ -141,7 +142,7 @@ Full planning suite lives in this repo:
 | 2 — Computer Vision | ✅ Complete | YOLOv8 + synthetic fallback · 19/19 tests · real YOLO inference pending on-device run |
 | 3 — Agentic Core | ✅ Complete | Hierarchical multi-agent (Supervisor→Crowd∥Train∥Safety→Decision→Action) · 29/29 agent + 3 backend tests |
 | 4 — Frontend | 🔲 Not started | React + Tailwind wa-modern |
-| 5 — Integration & Demo | 🔲 Not started | EC2 deploy + privacy proof |
+| 5 — Integration & Demo | 🔲 Not started | Vercel + Railway deploy + privacy proof |
 
 Full task breakdown in [Tracker.md](Tracker.md). Build order: Backend → CV → Agent → Frontend → Demo.
 

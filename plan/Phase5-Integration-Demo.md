@@ -13,7 +13,7 @@
 3. **Prove privacy** live: show the store holds only numbers; no PII, no frames.
 4. Verify **graceful degradation**: kill the LLM → rule engine still acts.
 5. Tune latency to targets (density ≤2s, loop 15–30s, near-instant dashboard).
-6. Deploy to **AWS EC2** and smoke-test the public WebSocket.
+6. Deploy backend to **Railway**, frontend to **Vercel**; smoke-test public WebSocket + CORS.
 7. Write the demo script + talking points; finalize README + all docs.
 
 ## 2. Exit Criteria
@@ -22,7 +22,7 @@
 - [ ] Data store inspection shows only counts/%/platform/train/timestamps.
 - [ ] `grep` proves no frame-writing; store has no PII columns/fields.
 - [ ] LLM disabled → rule-only path still holds + redirects + (template) announces.
-- [ ] EC2 instance serves dashboard + WS to a second device.
+- [ ] Railway backend serves WS; Vercel frontend connects and renders live.
 
 ---
 
@@ -74,11 +74,12 @@ Prepare to show judges, live:
 | Dashboard instant | WebSocket push, no polling |
 > Tip: for the demo, set `loop_period_sec` lower (e.g. 8s) so judges see action fast.
 
-## 8. Deployment (AWS EC2)
-- Provision Python + Node on the existing instance.
-- Run backend + agent (uvicorn / process manager), build + serve frontend statically.
-- Open ports for HTTP + WS; use the instance public DNS in the frontend WS URL.
-- Smoke test: open dashboard on a phone over the network; trigger the scenario.
+## 8. Deployment (Vercel + Railway)
+- **Backend (Railway):** FastAPI + agent loop + synthetic CV feed. Railway env vars for
+  config (`HOLD_MAX`, `CLAUDE_API_KEY`, TTS key). WebSocket URL = Railway public endpoint.
+- **Frontend (Vercel):** React build deployed from repo. Env var `VITE_WS_URL` points to
+  Railway's `wss://` endpoint. CORS locked to Vercel domain.
+- Smoke test: open Vercel URL on a phone; trigger the scenario; verify WS + agent log.
 - Keep a **local laptop fallback** (everything runs offline with synthetic feed) in case
   of venue Wi-Fi issues.
 
@@ -93,7 +94,7 @@ Prepare to show judges, live:
 - [ ] Repo README polished (done) + docs index current.
 - [ ] One-command launcher works on a clean clone.
 - [ ] Demo video / GIF recorded as backup.
-- [ ] EC2 live URL noted (with laptop fallback).
+- [ ] Railway + Vercel URLs noted (with laptop fallback).
 - [ ] [../Tracker.md] all phases → ✅; decisions log finalized.
 - [ ] Privacy proof rehearsed; degradation demo rehearsed.
 

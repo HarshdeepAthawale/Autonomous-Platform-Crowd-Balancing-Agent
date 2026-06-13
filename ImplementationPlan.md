@@ -105,7 +105,7 @@ rejects unsafe plans; rule-only fallback works with no API key.
 3. Privacy proof: show data store contents (only counts/%/timestamps); verify no frames/PII.
 4. Graceful-degradation test (kill LLM → rule engine still acts).
 5. Latency tuning (density ≤2s, loop 15–30s, near-instant dashboard).
-6. Deploy to AWS EC2; smoke-test public WebSocket.
+6. Deploy backend to Railway, frontend to Vercel; smoke-test public WebSocket + CORS.
 7. Demo script + talking points (privacy + autonomy + ethics).
 8. README + finalize all docs ([PRD], [TechSpecifications], [AppFlow], [Design], [Schema], [Tracker], [Rules]).
 

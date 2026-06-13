@@ -105,7 +105,7 @@ sections (Safety, Privacy) are **non-negotiable** — they define the product.
 - [ ] Meets its acceptance/exit criteria in [ImplementationPlan.md].
 - [ ] No safety or privacy rule violated.
 - [ ] Tracker updated.
-- [ ] Runs locally (and, for Phase 5, on EC2).
+- [ ] Runs locally (and, for Phase 5, on Vercel + Railway).
 
 ---
 

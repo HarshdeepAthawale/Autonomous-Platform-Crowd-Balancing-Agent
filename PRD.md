@@ -58,7 +58,7 @@ decisions in real time. The two combine into a deployable safety layer.
 | G3 | Act autonomously with zero operator input | Agent completes perceive→decide→act loop with no human click |
 | G4 | Preserve passenger privacy by design | Zero PII and zero raw frames stored; data auto-expires |
 | G5 | Keep all passenger-facing communication calm and non-coercive | Redirections are *suggestions*; announcements never alarming |
-| G6 | Be fully demoable on a laptop in under 2 minutes | End-to-end demo runs locally / on single EC2 instance |
+| G6 | Be fully demoable on a laptop in under 2 minutes | End-to-end demo runs locally / on Vercel + Railway |
 
 ### 3.2 Non-Goals
 - **Not** physically controlling or commanding passengers ("go here now").
@@ -138,7 +138,7 @@ decisions in real time. The two combine into a deployable safety layer.
 | NFR4 | **Ethics** | Passenger comms are informative/suggestive, never commanding or coercive. |
 | NFR5 | **Reliability** | Agent loop degrades gracefully if LLM unavailable (rule engine still acts on hard thresholds). |
 | NFR6 | **Compliance** | Satisfies DPDP Act 2023 (India) and APPI (Japan): data minimization, purpose limitation, auto-expiry. |
-| NFR7 | **Deployability** | Runs on a single laptop or one AWS EC2 instance for the demo. |
+| NFR7 | **Deployability** | Frontend on Vercel, backend on Railway. Synthetic CV runs on Railway; local fallback for real YOLO. |
 | NFR8 | **Auditability** | Every agent action is logged with reasoning in plain English. |
 
 ---

@@ -58,7 +58,8 @@ Agent synthesizes into a safety-validated plan, which an Action Agent executes.
 | Voice | TTS — ElevenLabs (free tier) or gTTS | Convert decision into calm spoken announcement |
 | Backend | FastAPI + WebSockets | Real-time event handling, push to clients |
 | Frontend | React + Tailwind CSS | Control room dashboard, gate/signage displays |
-| Hosting | AWS EC2 (already provisioned) | Run backend + video processing for live demo |
+  | Frontend Hosting | Vercel | React build, static serving |
+  | Backend Hosting | Railway | FastAPI + WebSocket + agent loop |
 
 > **Model note:** Default to the latest Claude models. Use **Claude Haiku 4.5**
 > (`claude-haiku-4-5`) for the low-latency in-loop decision/phrasing calls, and
@@ -205,10 +206,14 @@ See [Schema.md] for full payload schemas.
 
 - **Local demo:** `uvicorn` (FastAPI) + Vite/React dev server + YOLOv8 process. Two
   video sources for two platforms.
-- **EC2:** single instance runs backend + CV worker; React build served statically or
-  via the same host. WebSocket over the instance's public endpoint.
-- **Config:** `.env` for thresholds (`RED=85`, `YELLOW=60`), `HOLD_MAX`, loop period,
-  TTS provider key, Claude API key.
+- **Frontend:** Vercel — React build served statically; connects to Railway backend via
+  WebSocket (`wss://`) and REST.
+- **Backend:** Railway — FastAPI app hosting the agent loop, WebSocket endpoints, and
+  synthetic CV feed. WebSocket URL exposed as the public endpoint.
+- **CV pipeline:** Synthetic density feed runs on Railway (HTTP POST to itself). Real
+  YOLO path is local-only (no camera on cloud).
+- **Config:** `.env` / Railway env vars for thresholds (`RED=85`, `YELLOW=60`),
+  `HOLD_MAX`, loop period, TTS provider key, Claude API key, CORS origin (Vercel URL).
 
 ---
 

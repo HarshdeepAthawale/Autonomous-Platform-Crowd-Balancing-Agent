@@ -97,7 +97,7 @@ Architecture: Station Supervisor → (Crowd ∥ Train ∥ Safety) → Decision �
 | 5.3 | Privacy proof (show store, no PII/frames) | 🔲 | | |
 | 5.4 | Graceful-degradation test | 🔲 | | kill LLM |
 | 5.5 | Latency tuning | 🔲 | | |
-| 5.6 | Deploy to AWS EC2 + smoke test | 🔲 | | |
+| 5.6 | Deploy backend to Railway, frontend to Vercel; smoke test WS + CORS | 🔲 | | |
 | 5.7 | Demo script + talking points | 🔲 | | |
 | 5.8 | README + finalize docs | 🔲 | | |
 
@@ -111,6 +111,7 @@ Architecture: Station Supervisor → (Crowd ∥ Train ∥ Safety) → Decision �
 | 2026-06-14 | Claude API key | **Not available yet — confirmed.** Rule + template (bilingual) wording active; Claude code-ready, off by default |
 | 2026-06-14 | TTS provider | ElevenLabs free tier vs gTTS — **pending confirm** |
 | 2026-06-14 | Persistence | In-memory + time-series vs SQLite/Redis — **pending confirm** |
+| 2026-06-14 | Hosting | **Vercel (frontend) + Railway (backend) — confirmed.** Synthetic CV runs on Railway; real YOLO is local-only. |
 
 ## Known Follow-ups
 | Item | Why | Repro / action |
@@ -120,7 +121,7 @@ Architecture: Station Supervisor → (Crowd ∥ Train ∥ Safety) → Decision �
 ---
 
 ## Definition of Done (demo)
-- [ ] End-to-end demo runs in <2 min on laptop / EC2.
+- [ ] End-to-end demo runs in <2 min (Vercel + Railway, or local).
 - [ ] Worked scenario rebalances Platform A below Yellow within hold window.
 - [ ] Agent action log shows plain-English reasoning live.
 - [ ] Data store shows only counts/%/timestamps — no PII, no frames.
