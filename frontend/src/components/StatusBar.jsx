@@ -30,7 +30,7 @@ export default function StatusBar({ connected, overrideMode }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
         <span style={{ color: '#B8352C', display: 'flex' }}><StationMark size={22} /></span>
         <span style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 18, fontWeight: 700, letterSpacing: '0.01em' }}>
-          Crowd-Balancing Agent
+          Autonomous Platform Crowd Balancing Agent
         </span>
         <span style={{
           backgroundColor: '#F4EEE3',
