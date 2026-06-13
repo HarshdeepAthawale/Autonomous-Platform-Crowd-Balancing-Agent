@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from ..config import settings
 from ..deps import schedule, store
 from ..models import DensityIn
-from ..services import broadcast_state
+from ..services import broadcast_graph_point, broadcast_state
 from ..zones import trend_of
 
 router = APIRouter()
@@ -21,4 +21,5 @@ async def density(body: DensityIn):
     expires_at = schedule.expiry_for(body.platform_id)
     store.add_density(body.platform_id, body.count, pct, trend, expires_at)
     await broadcast_state()
+    await broadcast_graph_point(body.platform_id, pct)  # Schema.md §4
     return {"ok": True, "density_pct": pct, "trend": trend.value}
