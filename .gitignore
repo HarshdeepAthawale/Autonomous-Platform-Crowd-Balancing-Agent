@@ -1,0 +1,47 @@
+# Secrets & env
+.env
+.env.*
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Node / frontend
+node_modules/
+dist/
+build/
+.vite/
+*.local
+
+# ML / CV — never commit weights or recorded media (privacy)
+*.pt
+*.onnx
+*.mp4
+*.avi
+*.mov
+*.jpg
+*.jpeg
+*.png
+frames/
+recordings/
+
+# Data store / logs (privacy: no captured data in VCS)
+*.db
+*.sqlite
+*.sqlite3
+data/
+logs/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
