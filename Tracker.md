@@ -13,7 +13,7 @@
 |-------|-------|--------|----------|
 | 0 | Planning & Docs | ✅ Done | 8/8 docs |
 | 1 | Foundation & Backend Skeleton | ✅ Done | 8/8 · 15 tests pass |
-| 2 | Computer Vision Density Pipeline | 🔲 Not started | 0/6 |
+| 2 | Computer Vision Density Pipeline | ✅ Done | 6/6 · 13 tests pass |
 | 3 | Agentic Decision Core | 🔲 Not started | 0/6 |
 | 4 | Frontend: Dashboard, Displays & TTS | 🔲 Not started | 0/8 |
 | 5 | Integration, Privacy Proof & Demo | 🔲 Not started | 0/8 |
@@ -48,15 +48,15 @@
 
 ---
 
-## Phase 2 — Computer Vision Density Pipeline 🔲
+## Phase 2 — Computer Vision Density Pipeline ✅
 | # | Task | Status | Owner | Notes |
 |---|------|--------|-------|-------|
-| 2.1 | YOLOv8 + OpenCV capture (one source) | 🔲 | | |
-| 2.2 | Count → density % (capacity calibration) | 🔲 | | |
-| 2.3 | Rolling-average smoothing + trend | 🔲 | | |
-| 2.4 | Push DensityReading (no frame saved) | 🔲 | | Privacy P0 |
-| 2.5 | Two-source demo mode (A & B) | 🔲 | | webcam/clips |
-| 2.6 | Synthetic-density fallback simulator | 🔲 | | demo safety |
+| 2.1 | YOLOv8 + OpenCV capture (one source) | ✅ | | detector.py + sources.py |
+| 2.2 | Count → density % (capacity calibration) | ✅ | | density.py |
+| 2.3 | Rolling-average smoothing + trend | ✅ | | DensityTracker |
+| 2.4 | Push DensityReading (no frame saved) | ✅ | | publisher.py · privacy test |
+| 2.5 | Two-source demo mode (A & B) | ✅ | | worker.py thread-per-platform |
+| 2.6 | Synthetic-density fallback simulator | ✅ | | synthetic.py (default path) |
 
 ---
 

@@ -1,0 +1,9 @@
+# Synthetic demo path (lightweight — runs anywhere)
+httpx
+pydantic-settings
+pytest
+
+# Real YOLOv8 path (heavier; only needed when USE_SYNTHETIC=false)
+ultralytics
+opencv-python
+numpy
