@@ -22,6 +22,30 @@ class Trend(str, Enum):
     STABLE = "stable"
 
 
+# ---- Stored entities (Schema.md §2) -----------------------------------------
+
+class ArrivalEvent(BaseModel):
+    """Aggregated gate scan record (Schema.md §2.1).
+    No per-passenger row ever exists — counts are aggregated per platform+train.
+    """
+    platform_id: str
+    train_id: str
+    ts: datetime
+    expires_at: datetime
+
+
+class DensityReading(BaseModel):
+    """Per-platform headcount snapshot from the CV worker (Schema.md §2.2).
+    No raw frames stored — only the resulting number.
+    """
+    platform_id: str
+    count: int
+    density_pct: float
+    trend: Trend
+    ts: datetime
+    expires_at: datetime
+
+
 # ---- Inbound request bodies -------------------------------------------------
 
 class ScanIn(BaseModel):

@@ -12,7 +12,7 @@
 | Phase | Title | Status | Progress |
 |-------|-------|--------|----------|
 | 0 | Planning & Docs | ✅ Done | 8/8 docs |
-| 1 | Foundation & Backend Skeleton | ✅ Done | 8/8 · 10 tests pass |
+| 1 | Foundation & Backend Skeleton | ✅ Done | 8/8 · 15 tests pass |
 | 2 | Computer Vision Density Pipeline | 🔲 Not started | 0/6 |
 | 3 | Agentic Decision Core | 🔲 Not started | 0/6 |
 | 4 | Frontend: Dashboard, Displays & TTS | 🔲 Not started | 0/8 |

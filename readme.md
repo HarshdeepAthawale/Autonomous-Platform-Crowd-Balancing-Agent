@@ -119,8 +119,16 @@ Full planning suite lives in this repo:
 
 ## 🚀 Project Status
 
-🟢 **Phase 0 — Planning & Docs: complete.** Build phases 1–5 tracked in
-[Tracker.md](Tracker.md). Build order: Backend → CV → Agent → Frontend → Integration/Demo.
+| Phase | Status | Notes |
+|-------|--------|-------|
+| 0 — Planning & Docs | ✅ Complete | 8 docs: PRD, TechSpec, AppFlow, Design, Schema, Plan, Tracker, Rules |
+| 1 — Backend Skeleton | ✅ Complete | FastAPI + WS + TTL expiry · 15/15 tests pass |
+| 2 — Computer Vision | 🔲 Not started | YOLOv8 + synthetic fallback |
+| 3 — Agentic Core | 🔲 Not started | LangGraph + Claude |
+| 4 — Frontend | 🔲 Not started | React + Tailwind wa-modern |
+| 5 — Integration & Demo | 🔲 Not started | EC2 deploy + privacy proof |
+
+Full task breakdown in [Tracker.md](Tracker.md). Build order: Backend → CV → Agent → Frontend → Demo.
 
 ---
 
