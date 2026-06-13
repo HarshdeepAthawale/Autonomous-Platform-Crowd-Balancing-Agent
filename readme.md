@@ -1,4 +1,4 @@
-# 🚉 Autonomous Platform Crowd-Balancing Agent
+# Autonomous Platform Crowd-Balancing Agent
 ### 群衆バランス・エージェント · FAR AWAY 2026 — Theme: Railways
 
 > *"No stampedes. No chaos. Just smart, autonomous, real-time crowd balancing —
@@ -10,7 +10,7 @@ announcements) — never on people — to keep platforms balanced, safe, and cal
 
 ---
 
-## 🧩 The Problem
+## The Problem
 
 Railway stations regularly face dangerous platform overcrowding — passengers pile onto
 one platform while an adjacent one sits half-empty, because no one has real-time
@@ -26,7 +26,7 @@ Current systems are either fully manual (staff watching CCTV) or purely informat
 
 ---
 
-## 💡 The Solution
+## The Solution
 
 A **fully autonomous agent** that perceives platform density in real time, reasons about
 the best action, and **acts on its own** — holding trains, suggesting redirections,
@@ -39,21 +39,21 @@ updating signage, and making calm announcements — with **zero human interventi
 > *suggests* new arrivals consider the other platform, and announces the change calmly.
 
 ### Key Principles
-- 🔒 **Privacy-first** — only platform number, train ID, and timestamp are logged. No
+- **Privacy-first** — only platform number, train ID, and timestamp are logged. No
   names, faces, or personal data; no raw camera frames stored. Data auto-expires after
   the train departs (DPDP Act 2023 / APPI compliant).
-- 🤖 **Fully agentic** — a continuous *perceive → evaluate → decide → act → log* loop; no
+- **Fully agentic** — a continuous *perceive → evaluate → decide → act → log* loop; no
   operator needs to click "approve."
-- 🛡️ **Safe by design** — a hard rule engine is always authoritative; the LLM only chooses
+- **Safe by design** — a hard rule engine is always authoritative; the LLM only chooses
   among safe options and drafts wording. Fail-safe = take no action.
-- 🗣️ **Suggest, never command** — the agent *informs and suggests*; it acts on
+- **Suggest, never command** — the agent *informs and suggests*; it acts on
   infrastructure, never physically directs people.
-- 🎌 **Wa-modern, bilingual UI** — Japanese-railway-inspired design (JR / Tokyo Metro),
+- **Wa-modern, bilingual UI** — Japanese-railway-inspired design (JR / Tokyo Metro),
   日本語-first signage and announcements for real-world deployability in Japan.
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 A **layered hierarchical multi-agent system** sits at the core: a Station Supervisor fans
 out to three parallel agents (Crowd / Train / Safety), a Decision Agent synthesizes their
@@ -67,23 +67,23 @@ flowchart TD
         CV --> BE
         BE --> LDS["Live Data Store<br/>aggregate, anonymous, TTL"]
     end
-    LDS --> SUP["🎯 Station Supervisor Agent"]
+    LDS --> SUP["Station Supervisor Agent"]
     subgraph Decision["Hierarchical Multi-Agent Core (LangGraph)"]
-        SUP --> CR["👥 Crowd Agent"]
-        SUP --> TR["🚆 Train Agent"]
-        SUP --> SA["🛡️ Safety Agent"]
-        CR --> DEC["🧠 Decision Agent"]
+        SUP --> CR["Crowd Agent"]
+        SUP --> TR["Train Agent"]
+        SUP --> SA["Safety Agent"]
+        CR --> DEC["Decision Agent"]
         TR --> DEC
         SA --> DEC
-        DEC --> AA["⚡ Action Agent"]
+        DEC --> AA["Action Agent"]
     end
     AA --> ACT
     subgraph ACT["Action Layer"]
-        HOLD["🚆 Hold train signal"]
-        RED["🧭 Redirect suggestion"]
-        TTS["📢 TTS announcement"]
-        SIGN["🚦 Signage red/green"]
-        DASH["📊 Control-room dashboard"]
+        HOLD["Hold train signal"]
+        RED["Redirect suggestion"]
+        TTS["TTS announcement"]
+        SIGN["Signage red/green"]
+        DASH["Control-room dashboard"]
     end
 ```
 
@@ -94,11 +94,11 @@ calmly, updates signage → every decision is logged with plain-English reasonin
 oversight (not control). The **Safety Agent's gate is authoritative** — the LLM can never
 produce an unsafe action.
 
-**Zones:** 🟩 Green `<60%` · 🟨 Yellow `60–85%` · 🟥 Red `>85%`
+**Zones:** Green `<60%` · Yellow `60–85%` · Red `>85%`
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Tools / Libraries | Purpose |
 |---|---|---|
@@ -116,7 +116,7 @@ produce an unsafe action.
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 Full planning suite lives in this repo:
 
@@ -133,22 +133,22 @@ Full planning suite lives in this repo:
 
 ---
 
-## 🚀 Project Status
+## Project Status
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| 0 — Planning & Docs | ✅ Complete | 8 docs: PRD, TechSpec, AppFlow, Design, Schema, Plan, Tracker, Rules |
-| 1 — Backend Skeleton | ✅ Complete | FastAPI + WS + TTL expiry · 15/15 tests pass |
-| 2 — Computer Vision | ✅ Complete | YOLOv8 + synthetic fallback · 19/19 tests · real YOLO inference pending on-device run |
-| 3 — Agentic Core | ✅ Complete | Hierarchical multi-agent (Supervisor→Crowd∥Train∥Safety→Decision→Action) · 29/29 agent + 3 backend tests |
-| 4 — Frontend | 🔲 Not started | React + Tailwind wa-modern |
-| 5 — Integration & Demo | 🔲 Not started | Vercel + Railway deploy + privacy proof |
+| 0 — Planning & Docs | Complete | 8 docs: PRD, TechSpec, AppFlow, Design, Schema, Plan, Tracker, Rules |
+| 1 — Backend Skeleton | Complete | FastAPI + WS + TTL expiry · 15/15 tests pass |
+| 2 — Computer Vision | Complete | YOLOv8 + synthetic fallback · 19/19 tests · real YOLO inference pending on-device run |
+| 3 — Agentic Core | Complete | Hierarchical multi-agent (Supervisor→Crowd∥Train∥Safety→Decision→Action) · 29/29 agent + 3 backend tests |
+| 4 — Frontend | Not started | React + Tailwind wa-modern |
+| 5 — Integration & Demo | Not started | Vercel + Railway deploy + privacy proof |
 
 Full task breakdown in [Tracker.md](Tracker.md). Build order: Backend → CV → Agent → Frontend → Demo.
 
 ---
 
-## 🌟 Impact
+## Impact
 
 | Risk Addressed | How |
 |---|---|
@@ -168,7 +168,7 @@ launch-ready, not just a hackathon concept.
 
 ---
 
-## ⚖️ Ethical Stance
+## Ethical Stance
 
 > The Agent never tells people **where** to go in a commanding tone. It **informs**,
 > **suggests**, and acts on **infrastructure** rather than physically controlling people.
@@ -176,4 +176,4 @@ launch-ready, not just a hackathon concept.
 
 ---
 
-*Built for FAR AWAY 2026 — India's Biggest International Hackathon 🇮🇳🇯🇵*
+*Built for FAR AWAY 2026 — India's Biggest International Hackathon*
