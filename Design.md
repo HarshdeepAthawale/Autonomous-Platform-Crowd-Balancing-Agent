@@ -29,14 +29,14 @@ but calmer and more elegant than raw web primaries.
 
 | Zone | Density | 和名 (Name) | Color | Hex | Meaning |
 |------|---------|------------|-------|-----|---------|
-| Green | < 60% | 萌黄 *Moegi* (fresh green) | 🟩 | `#8CB369` → `#5C8A3A` | 空いています — Comfortable |
-| Yellow | 60–85% | 山吹 *Yamabuki* (golden) | 🟨 | `#E8A33D` | 混み始め — Filling up |
-| Red | > 85% | 朱 *Shu* (vermilion) | 🟥 | `#D7483B` | 混雑 — Crowded, agent acts |
-| Primary | — | 藍 *Ai* (indigo) | 🔷 | `#1B2A4A` | Chrome / background base |
-| Accent | — | 縹 *Hanada* (blue) | 🔹 | `#2E6F95` | Interactive / agent voice |
-| Ink | — | 墨 *Sumi* (ink black) | ⬛ | `#1A1A1A` | Primary text on light |
-| Paper | — | 生成 *Kinari* (off-white) | ⬜ | `#F7F4ED` | Light surface / "washi paper" |
-| Seal | — | 緋 *Hi* (crimson seal) | 🔺 | `#B8352C` | Critical badge / hold marker |
+| Green | < 60% | 萌黄 *Moegi* (fresh green) | [GREEN] | `#8CB369` → `#5C8A3A` | 空いています — Comfortable |
+| Yellow | 60–85% | 山吹 *Yamabuki* (golden) | [YELLOW] | `#E8A33D` | 混み始め — Filling up |
+| Red | > 85% | 朱 *Shu* (vermilion) | [RED] | `#D7483B` | 混雑 — Crowded, agent acts |
+| Primary | — | 藍 *Ai* (indigo) | [INDIGO] | `#1B2A4A` | Chrome / background base |
+| Accent | — | 縹 *Hanada* (blue) | [HANADA] | `#2E6F95` | Interactive / agent voice |
+| Ink | — | 墨 *Sumi* (ink black) | [INK] | `#1A1A1A` | Primary text on light |
+| Paper | — | 生成 *Kinari* (off-white) | [PAPER] | `#F7F4ED` | Light surface / "washi paper" |
+| Seal | — | 緋 *Hi* (crimson seal) | [SEAL] | `#B8352C` | Critical badge / hold marker |
 
 **Two themes:**
 - **Control Room — 藍 dark mode** (default): `#1B2A4A` indigo base, `#F7F4ED` text, zone colors pop.
@@ -64,7 +64,7 @@ Zone tones are slightly desaturated vs. web defaults to keep the *calm* register
 ### 4.1 Control Room Dashboard — 藍 dark mode (primary)
 ```
 ┌────────────────────────────────────────────────────────────────────────────┐
-│  🚉 群衆バランス・エージェント   Crowd-Balancing Agent     ● 自律運転 AUTONOMOUS  12:04 │
+│  群衆バランス・エージェント   Crowd-Balancing Agent     ● 自律運転 AUTONOMOUS  12:04 │
 ├───────────────────────────────────┬────────────────────────────────────────┤
 │  ホーム A  PLATFORM A   ┃ 朱 RED ┃ │   ホーム B  PLATFORM B   ┃ 萌黄 GREEN ┃    │
 │  列車 12045 · 到着 6分 〔保留 HELD〕  │   列車 12046 · 到着 9分                  │
@@ -77,7 +77,7 @@ Zone tones are slightly desaturated vs. web defaults to keep the *calm* register
 │      │ ────╯   B ─────────────                                                 │
 │     0└────────────────────────────────────────────────────────────────       │
 ├──────────────────────────────────────────────────────────────────────────────┤
-│  🤖 エージェント行動ログ  AGENT ACTION LOG                                       │
+│  エージェント行動ログ  AGENT ACTION LOG                                       │
 │  12:04:30  ホームA が朱(92%)に到達・増加中。ホームB は萌黄・列車9分 →           │
 │            保留＋誘導＋放送 を実行。 / Platform A RED & rising…   〔取消 Override〕│
 │  12:04:31  列車12045 を +10分 保留(取消可)。 HOLD +10m            〔取消 Override〕│
@@ -170,7 +170,7 @@ Tone: polite, advisory (丁寧語). Never 命令形 ("PLATFORM B へ行け"). Al
 ## 8. Iconography
 - Minimal line icons (1.5px stroke), rounded caps — matches *wa-modern* softness.
 - Zone shapes for color-blind safety: Green = ●, Yellow = ◆, Red = ■ (shape ≠ color dependency).
-- Railway glyphs: 🚉 station, 🚆 train, ⏸ hold, 📢 announcement, ↗ redirect.
+- Railway glyphs: station, train, hold, announcement, redirect.
 
 ---
 

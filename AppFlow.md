@@ -44,16 +44,16 @@ executes.
 
 ```mermaid
 flowchart TD
-    P["PERCEIVE<br/>GET /api/state snapshot"] --> SUP["🎯 Station Supervisor Agent"]
-    SUP --> CR["👥 Crowd Agent<br/>density + trend<br/>flag RED &amp; rising"]
-    SUP --> TR["🚆 Train Agent<br/>ETAs + holdability<br/>(no-thrash)"]
-    SUP --> SA["🛡️ Safety Agent<br/>zones, breaches<br/>fail-safe + hard gate"]
-    CR --> DEC["🧠 Decision Agent<br/>synthesize reports<br/>pick safe target → Plan"]
+    P["PERCEIVE<br/>GET /api/state snapshot"] --> SUP["Station Supervisor Agent"]
+    SUP --> CR["Crowd Agent<br/>density + trend<br/>flag RED &amp; rising"]
+    SUP --> TR["Train Agent<br/>ETAs + holdability<br/>(no-thrash)"]
+    SUP --> SA["Safety Agent<br/>zones, breaches<br/>fail-safe + hard gate"]
+    CR --> DEC["Decision Agent<br/>synthesize reports<br/>pick safe target → Plan"]
     TR --> DEC
     SA --> DEC
     DEC --> CHK{"safe plan?<br/>(Safety gate)"}
     CHK -- No / all safe / fail-safe --> L["LOG<br/>record state, no action"]
-    CHK -- Yes --> ACT["⚡ Action Agent"]
+    CHK -- Yes --> ACT["Action Agent"]
     ACT --> G1["Hold signal → scheduling API (capped)"]
     ACT --> G2["Redirect suggestion → displays"]
     ACT --> G3["TTS announcement (calm, bilingual)"]

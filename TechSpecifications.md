@@ -19,15 +19,15 @@
  │ per platform│   │ YOLOv8+OpenCV│          │
  └─────────────┘   └──────────────┘          ▼  GET /api/state
             ╔═══════════════════════════════════════════════════════╗
-  DECISION  ║         🎯 STATION SUPERVISOR AGENT (orchestrator)      ║
+  DECISION  ║         STATION SUPERVISOR AGENT (orchestrator)      ║
   (multi-   ║                        │                               ║
    agent    ║          ┌─────────────┼─────────────┐  ◀ parallel     ║
-   hier-    ║       👥 Crowd      🚆 Train       🛡️ Safety            ║
+   hier-    ║       Crowd      Train       Safety            ║
    archy)   ║        Agent        Agent          Agent               ║
             ║          └─────────────┼─────────────┘                  ║
-            ║                  🧠 Decision Agent   (synthesize+plan)   ║
+            ║                  Decision Agent   (synthesize+plan)   ║
             ║                        │  (hard safety gate)             ║
-            ║                  ⚡ Action Agent     (execute plan)       ║
+            ║                  Action Agent     (execute plan)       ║
             ╚═══════════════════════════╤═══════════════════════════════╝
                               │        │        │         │
   ACTION                ┌─────▼──┐ ┌───▼────┐ ┌─▼──────┐ ┌▼──────────┐
@@ -98,12 +98,12 @@ Agent synthesizes into a safety-validated plan, which an Action Agent executes.
 
 ### 3.5 Agentic Decision Core — Hierarchical Multi-Agent System
 - **Architecture:** a layered hierarchy, not a single agent:
-  - **🎯 Station Supervisor Agent** — orchestrates each tick; fans out to the parallel layer, collects reports, drives Decision → Action.
-  - **👥 Crowd Agent** *(parallel)* — analyzes density + trend; flags RED-and-rising platforms.
-  - **🚆 Train Agent** *(parallel)* — schedule view: next-train ETAs + holdability (exists & not already held → no-thrash).
-  - **🛡️ Safety Agent** *(parallel)* — zone classification, RED breaches, **fail-safe** flag, and the **hard safety gate** (`validate_plan`).
-  - **🧠 Decision Agent** — synthesizes the three reports → a safety-validated `Plan` (hold + redirect + announce, or hold-only).
-  - **⚡ Action Agent** — turns the plan into executable side effects (hold call, signage/redirect WS messages, calm bilingual wording) + the `AgentDecision` record.
+  - **Station Supervisor Agent** — orchestrates each tick; fans out to the parallel layer, collects reports, drives Decision → Action.
+  - **Crowd Agent** *(parallel)* — analyzes density + trend; flags RED-and-rising platforms.
+  - **Train Agent** *(parallel)* — schedule view: next-train ETAs + holdability (exists & not already held → no-thrash).
+  - **Safety Agent** *(parallel)* — zone classification, RED breaches, **fail-safe** flag, and the **hard safety gate** (`validate_plan`).
+  - **Decision Agent** — synthesizes the three reports → a safety-validated `Plan` (hold + redirect + announce, or hold-only).
+  - **Action Agent** — turns the plan into executable side effects (hold call, signage/redirect WS messages, calm bilingual wording) + the `AgentDecision` record.
 - **Hybrid control:** the **Safety Agent's gate is authoritative**; the **LLM** only chooses among already-safe options and drafts wording. The LLM **cannot** widen what the rules allow — every plan is re-validated before execution.
 - **Framework:** LangGraph expresses the hierarchy (Supervisor → Crowd ∥ Train ∥ Safety → Decision → Action). The in-process runner invokes the same agent functions directly for single-process demo reliability; both are parity-tested.
 - **Cadence:** autonomous background loop every **15–30s** (configurable) + a manual `POST /api/agent/tick` for demo control.
@@ -126,9 +126,9 @@ Each tick flows through the hierarchy:
 | Stage | Agent(s) | What it does |
 |-------|----------|--------------|
 | **Perceive** | Station Supervisor | Pull live snapshot (`GET /api/state`): per-platform density %, zone, trend, arrival rate, next-train ETA |
-| **Analyze (parallel)** | 👥 Crowd · 🚆 Train · 🛡️ Safety | Crowd: flag RED+rising. Train: ETAs + holdability. Safety: zones, RED breaches, fail-safe flag |
-| **Decide** | 🧠 Decision Agent | Synthesize the 3 reports → pick best safe alternative → build `Plan` (hold ≤cap + redirect *suggestion* + announce, or hold-only). **Safety gate validates** before it leaves |
-| **Act** | ⚡ Action Agent | Hold-signal to scheduling; redirect suggestion + signage colors to displays (WS); calm bilingual announcement wording; emit `agent_action` to dashboard |
+| **Analyze (parallel)** | Crowd · Train · Safety | Crowd: flag RED+rising. Train: ETAs + holdability. Safety: zones, RED breaches, fail-safe flag |
+| **Decide** | Decision Agent | Synthesize the 3 reports → pick best safe alternative → build `Plan` (hold ≤cap + redirect *suggestion* + announce, or hold-only). **Safety gate validates** before it leaves |
+| **Act** | Action Agent | Hold-signal to scheduling; redirect suggestion + signage colors to displays (WS); calm bilingual announcement wording; emit `agent_action` to dashboard |
 | **Log & Learn** | Supervisor / runner | Record `AgentDecision` + reasoning; mark outcome when the platform clears RED |
 
 Thresholds: **Green <60%, Yellow 60–85%, Red >85%**. Tooling: YOLOv8/OpenCV + FastAPI

@@ -64,23 +64,23 @@ agent/
 GET /api/state snapshot
         │
         ▼
-🎯 Station Supervisor Agent   (orchestrates each tick)
+Station Supervisor Agent   (orchestrates each tick)
         │
    asyncio.gather (parallel fan-out)
    ┌────┴────────────┬──────────────────┐
    ▼                 ▼                  ▼
-👥 Crowd Agent    🚆 Train Agent    🛡️ Safety Agent
+Crowd Agent    Train Agent    Safety Agent
   density+trend    ETAs+holdable    zones+breaches
   flag RED rising  no-thrash        hard gate ready
    └────┬────────────┴──────────────────┘
         │       fan-in: all 3 reports
         ▼
-🧠 Decision Agent
+Decision Agent
   synthesize reports → best_alternative() → Plan
   Safety gate validates Plan before it leaves
         │
         ▼ (only if plan passes the gate)
-⚡ Action Agent
+Action Agent
   hold call (capped) · redirect WS · signage WS · announcement wording
   emit AgentDecision record → /ws/dashboard
         │
