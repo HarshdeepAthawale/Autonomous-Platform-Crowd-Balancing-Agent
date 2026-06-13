@@ -13,7 +13,7 @@
 |-------|-------|--------|----------|
 | 0 | Planning & Docs | ✅ Done | 8/8 docs |
 | 1 | Foundation & Backend Skeleton | ✅ Done | 8/8 · 15 tests pass |
-| 2 | Computer Vision Density Pipeline | ✅ Done | 6/6 · 13 tests pass |
+| 2 | Computer Vision Density Pipeline | ✅ Done* | 6/6 · 19 tests · *real YOLO inference pending on-device run |
 | 3 | Agentic Decision Core | 🔲 Not started | 0/6 |
 | 4 | Frontend: Dashboard, Displays & TTS | 🔲 Not started | 0/8 |
 | 5 | Integration, Privacy Proof & Demo | 🔲 Not started | 0/8 |
@@ -51,7 +51,7 @@
 ## Phase 2 — Computer Vision Density Pipeline ✅
 | # | Task | Status | Owner | Notes |
 |---|------|--------|-------|-------|
-| 2.1 | YOLOv8 + OpenCV capture (one source) | ✅ | | detector.py + sources.py |
+| 2.1 | YOLOv8 + OpenCV capture (one source) | 🟡 | | code written; worker logic DI-tested; real YOLO inference pending on-device run (see follow-up) |
 | 2.2 | Count → density % (capacity calibration) | ✅ | | density.py |
 | 2.3 | Rolling-average smoothing + trend | ✅ | | DensityTracker |
 | 2.4 | Push DensityReading (no frame saved) | ✅ | | publisher.py · privacy test |
@@ -106,6 +106,11 @@
 | 2026-06-14 | Agent framework | LangGraph (recommended) vs CrewAI — **pending confirm** |
 | 2026-06-14 | TTS provider | ElevenLabs free tier vs gTTS — **pending confirm** |
 | 2026-06-14 | Persistence | In-memory + time-series vs SQLite/Redis — **pending confirm** |
+
+## Known Follow-ups
+| Item | Why | Repro / action |
+|------|-----|----------------|
+| Real YOLOv8 inference unverified | Sandbox has no camera + torch/weights not installed. Synthetic path, worker control-flow (stride/throttle/EOF), entrypoint, and publish latency (≤2s) ARE verified. | On demo machine: `pip install -r cv/requirements.txt` then `USE_SYNTHETIC=false python -m cv.run` with a webcam or sample clip; confirm `GET /api/state` density moves and measure frame→backend latency incl. inference. |
 
 ---
 

@@ -123,7 +123,7 @@ Full planning suite lives in this repo:
 |-------|--------|-------|
 | 0 — Planning & Docs | ✅ Complete | 8 docs: PRD, TechSpec, AppFlow, Design, Schema, Plan, Tracker, Rules |
 | 1 — Backend Skeleton | ✅ Complete | FastAPI + WS + TTL expiry · 15/15 tests pass |
-| 2 — Computer Vision | ✅ Complete | YOLOv8 + synthetic fallback · 13/13 tests pass |
+| 2 — Computer Vision | ✅ Complete | YOLOv8 + synthetic fallback · 19/19 tests · real YOLO inference pending on-device run |
 | 3 — Agentic Core | 🔲 Not started | LangGraph + Claude |
 | 4 — Frontend | 🔲 Not started | React + Tailwind wa-modern |
 | 5 — Integration & Demo | 🔲 Not started | EC2 deploy + privacy proof |
