@@ -1,0 +1,9 @@
+# Core agent logic (always required)
+pytest
+
+# Documented LangGraph orchestration (graph.py). The in-process runner works
+# without it; needed only to run/test the graph form.
+langgraph
+
+# Real LLM wording (optional — only when CLAUDE_API_KEY is set)
+anthropic

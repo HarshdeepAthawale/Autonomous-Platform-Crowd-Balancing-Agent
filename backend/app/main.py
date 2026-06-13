@@ -8,9 +8,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
+from .agent_runner import agent_loop
 from .config import settings
 from .deps import store
-from .routers import density, override, scan, scheduling, state
+from .routers import agent, density, override, scan, scheduling, state
 from .services import state_payload
 from .ws import manager
 
@@ -24,11 +25,15 @@ async def _sweep_loop():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    task = asyncio.create_task(_sweep_loop())
+    tasks = [
+        asyncio.create_task(_sweep_loop()),
+        asyncio.create_task(agent_loop()),   # autonomous Station Supervisor loop
+    ]
     try:
         yield
     finally:
-        task.cancel()
+        for t in tasks:
+            t.cancel()
 
 
 app = FastAPI(title="Crowd-Balancing Agent — Backend", version="0.1.0", lifespan=lifespan)
@@ -41,7 +46,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for r in (scan, density, state, scheduling, override):
+for r in (scan, density, state, scheduling, override, agent):
     app.include_router(r.router)
 
 
