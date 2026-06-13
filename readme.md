@@ -1,77 +1,85 @@
 # 🚉 Autonomous Platform Crowd-Balancing Agent
+### 群衆バランス・エージェント · FAR AWAY 2026 — Theme: Railways
 
-### FAR AWAY 2026 — Theme: Railways
-*"No stampedes. No chaos. Just smart, autonomous, real-time crowd balancing."*
+> *"No stampedes. No chaos. Just smart, autonomous, real-time crowd balancing —
+> with zero personal data collected."*
+
+An AI station-master that watches every platform at once, spots a dangerous crowd
+**before** it forms, and acts on the **infrastructure** (trains, signals, signage,
+announcements) — never on people — to keep platforms balanced, safe, and calm.
 
 ---
 
 ## 🧩 The Problem
 
-Indian (and global) railway stations regularly face dangerous platform overcrowding —
-passengers pile onto one platform while an adjacent platform sits half-empty, simply
-because no one has real-time visibility into crowd distribution. This leads to:
+Railway stations regularly face dangerous platform overcrowding — passengers pile onto
+one platform while an adjacent one sits half-empty, because no one has real-time
+visibility into crowd distribution. This causes:
 
 - **Stampede risk** during peak hours and festival rushes
 - **Pickpocketing & lost luggage**, which thrive in dense, chaotic crowds
-- **Frustration and altercations** from delays and confusion
-- **Inefficient train holding/departure**, since trains leave on fixed schedules
-  regardless of how crowded the platform actually is
+- **Frustration & altercations** from delays and confusion
+- **Inefficient train holding** — trains depart on fixed schedules regardless of crowd
 
 Current systems are either fully manual (staff watching CCTV) or purely informational
-(just showing a crowd count with no action taken). **Nobody closes the loop.**
+(a crowd count with no action). **Nobody closes the loop.**
 
 ---
 
 ## 💡 The Solution
 
-An **autonomous agent** that perceives platform crowd density in real time, reasons
-about the best course of action, and **acts on its own** — holding trains, redirecting
-passengers, updating signage, and making calm multilingual announcements — with **zero
-human intervention** and **zero personal data collection**.
+A **fully autonomous agent** that perceives platform density in real time, reasons about
+the best action, and **acts on its own** — holding trains, suggesting redirections,
+updating signage, and making calm announcements — with **zero human intervention** and
+**zero personal data collection**.
 
-**How it works, in one line:**
-> Scan your ticket → Agent sees live crowd density on every platform → If one platform
-> is overcrowded and a nearby one isn't, the Agent holds that platform's train a few
-> extra minutes, redirects new arrivals, and announces the change — calmly, in
-> English, Hindi, and Japanese.
+**In one line:**
+> Scan your ticket → the Agent sees live density on every platform → if one is
+> overcrowded and a nearby one isn't, it holds that platform's train a few extra minutes,
+> *suggests* new arrivals consider the other platform, and announces the change calmly.
 
 ### Key Principles
 - 🔒 **Privacy-first** — only platform number, train ID, and timestamp are logged. No
-  names, photos, or personal data. Data auto-expires after the train departs.
-- 🤖 **Fully agentic** — perceive → decide → act loop runs continuously, no operator
-  needs to click "approve."
-- 🗣️ **Human-friendly** — the agent *informs and suggests*, never commands people
-  physically. All actions are on infrastructure (trains, signals, displays).
-- 🌍 **Multilingual** — announcements in English, Hindi, and Japanese for real-world
-  deployability in India and Japan.
+  names, faces, or personal data; no raw camera frames stored. Data auto-expires after
+  the train departs (DPDP Act 2023 / APPI compliant).
+- 🤖 **Fully agentic** — a continuous *perceive → evaluate → decide → act → log* loop; no
+  operator needs to click "approve."
+- 🛡️ **Safe by design** — a hard rule engine is always authoritative; the LLM only chooses
+  among safe options and drafts wording. Fail-safe = take no action.
+- 🗣️ **Suggest, never command** — the agent *informs and suggests*; it acts on
+  infrastructure, never physically directs people.
+- 🎌 **Wa-modern, bilingual UI** — Japanese-railway-inspired design (JR / Tokyo Metro),
+  日本語-first signage and announcements for real-world deployability in Japan.
 
 ---
 
 ## 🏗️ System Architecture
 
-![System Architecture](architecture.png)
+```mermaid
+flowchart TD
+    subgraph Perception
+        GS["Gate Scanner<br/>platform + train ID only"] --> BE["Backend<br/>FastAPI"]
+        CAM["CCTV / Webcam"] --> CV["Density Estimator<br/>YOLOv8 + OpenCV"]
+        CV --> BE
+        BE --> LDS["Live Data Store<br/>aggregate, anonymous, TTL"]
+    end
+    LDS --> AG["AGENTIC DECISION CORE<br/>LangGraph + Claude<br/>rule engine + LLM"]
+    AG --> ACT
+    subgraph ACT["Action Layer"]
+        HOLD["🚆 Hold train signal"]
+        RED["🧭 Redirect suggestion"]
+        TTS["📢 TTS announcement"]
+        SIGN["🚦 Signage red/green"]
+        DASH["📊 Control-room dashboard"]
+    end
+```
 
-**Flow summary:**
+**Flow:** scan ticket → log anonymous arrival → cameras estimate density → agent fuses
+arrivals + density + schedule → on Red-zone + safe neighbor, it holds the train, suggests
+redirect, announces calmly, and updates signage → every decision is logged with
+plain-English reasoning for human oversight (not control).
 
-1. **Entry** — Passenger scans ticket QR/barcode at the gate. A reader picks up the
-   platform number + train ID and sends it to the backend (FastAPI). No personal data
-   is stored — only an anonymous arrival count per platform.
-2. **Sensing** — Cameras on each platform run **YOLOv8 + OpenCV** to count people in
-   real time. This is converted into a density % per platform and tracked over time
-   using **Pandas/NumPy**.
-3. **Agentic Decision Core** — A **LangGraph/CrewAI** agent continuously watches
-   ticket arrivals + live density + train schedules. It uses rule-based safety
-   thresholds (Green <60%, Yellow 60–85%, Red >85%) plus an **LLM (Claude/GPT)** for
-   nuanced reasoning and natural-language announcement drafting.
-4. **Action** — When Platform A is Red and Platform B is Green/Yellow with a
-   near-term train:
-   - 🚆 **Hold Signal** → Platform A's train held a few extra minutes via scheduling API
-   - 🧭 **Redirect Suggestion** → gate displays show "Platform B has more space"
-   - 📢 **TTS Announcement** → calm, multilingual voice announcement
-   - 🚦 **Signage Update** → red/green live indicators on display boards
-5. **Dashboard** — A **React** control-room dashboard shows live density line graphs,
-   platform heatmaps, and a running log of every decision the agent made — for human
-   oversight, not control.
+**Zones:** 🟩 Green `<60%` · 🟨 Yellow `60–85%` · 🟥 Red `>85%`
 
 ---
 
@@ -79,16 +87,40 @@ human intervention** and **zero personal data collection**.
 
 | Layer | Tools / Libraries | Purpose |
 |---|---|---|
-| Ticket Scan / Entry | QR/barcode scanner, FastAPI endpoint | Capture platform + train ID, log arrival event |
-| Crowd Detection | YOLOv8 (Ultralytics), OpenCV | Real-time person counting per platform |
+| Ticket Scan / Entry | QR/barcode scanner, FastAPI | Capture platform + train ID, log arrival |
+| Crowd Detection | YOLOv8 (Ultralytics), OpenCV | Real-time per-platform person counting |
 | Data & Trends | Pandas, NumPy | Rolling density %, trend detection |
 | Visualization | Recharts, matplotlib | Live density graphs, zone heatmaps |
-| Agent Core | LangGraph / CrewAI | Perceive → decide → act orchestration |
-| Reasoning | Claude / GPT-4 API | Decision-making + multilingual announcement drafting |
-| Voice | ElevenLabs / gTTS | English, Hindi, Japanese announcements |
-| Backend | FastAPI + WebSockets | Real-time event handling |
-| Frontend | React + Tailwind CSS | Control room dashboard |
+| Agent Core | LangGraph | Perceive → decide → act orchestration |
+| Reasoning | Claude (`claude-haiku-4-5` / `claude-opus-4-8`) | Decisions + calm announcement drafting |
+| Voice | ElevenLabs / gTTS | Calm, bilingual station announcements |
+| Backend | FastAPI + WebSockets | Real-time event handling, live push |
+| Frontend | React + Tailwind CSS | Wa-modern control-room dashboard & signage |
+| Hosting | AWS EC2 | Backend + video processing for the demo |
 
+---
+
+## 📚 Documentation
+
+Full planning suite lives in this repo:
+
+| Doc | What's inside |
+|---|---|
+| [PRD.md](PRD.md) | Problem, goals, personas, requirements (FR/NFR), metrics, scope, risks |
+| [TechSpecifications.md](TechSpecifications.md) | Architecture, stack, agent loop + pseudocode, APIs, latency targets |
+| [AppFlow.md](AppFlow.md) | User journeys, decision loop, worked example, sequence diagrams |
+| [Design.md](Design.md) | Wa-modern UI/UX, traditional Japanese color palette, bilingual wireframes |
+| [Schema.md](Schema.md) | Privacy-first data model, SQL view, WebSocket schemas, retention |
+| [ImplementationPlan.md](ImplementationPlan.md) | 5-phase build plan with exit criteria |
+| [Tracker.md](Tracker.md) | Phase-by-phase task tracker + decision log |
+| [Rules.md](Rules.md) | Non-negotiable safety + privacy rules, engineering standards |
+
+---
+
+## 🚀 Project Status
+
+🟢 **Phase 0 — Planning & Docs: complete.** Build phases 1–5 tracked in
+[Tracker.md](Tracker.md). Build order: Backend → CV → Agent → Frontend → Integration/Demo.
 
 ---
 
@@ -96,20 +128,28 @@ human intervention** and **zero personal data collection**.
 
 | Risk Addressed | How |
 |---|---|
-| Stampedes / overcrowding | Early density alerts + automatic crowd redistribution before danger thresholds |
-| Pickpocketing & lost luggage | Even crowd distribution removes the dense, chaotic conditions these thrive in |
-| Violence / altercations | Calmer platforms, clear multilingual communication, visible wait/capacity info |
+| Stampedes / overcrowding | Early density alerts + automatic redistribution before danger thresholds |
+| Pickpocketing & lost luggage | Even distribution removes the dense, chaotic conditions these thrive in |
+| Violence / altercations | Calmer platforms, clear bilingual communication, visible capacity info |
 | Missed trains | Held-train logic gives a buffer instead of trains leaving into a packed platform |
-| Operational efficiency | Smarter train holding reduces bunching and improves overall throughput |
+| Operational efficiency | Smarter holding reduces bunching, improves throughput |
 
-**Scalability:** The same architecture works for any multi-platform station — in
-India (Mumbai, Delhi, Howrah) or Japan (Shinjuku, Tokyo Station) — without any change
-to the core agent logic, only camera/sensor placement.
+**Scalability:** the same architecture works for any multi-platform station — Mumbai,
+Delhi, Howrah, Shinjuku, Tokyo Station — without changing core agent logic, only
+camera/sensor placement.
 
-**Real-world readiness:** Because no personal data is collected or stored, this
-system can be deployed without violating India's DPDP Act 2023 or Japan's APPI —
-making it genuinely launch-ready, not just a hackathon concept.
+**Real-world readiness:** because no personal data or imagery is stored, the system can be
+deployed without violating India's **DPDP Act 2023** or Japan's **APPI** — genuinely
+launch-ready, not just a hackathon concept.
 
+---
 
+## ⚖️ Ethical Stance
+
+> The Agent never tells people **where** to go in a commanding tone. It **informs**,
+> **suggests**, and acts on **infrastructure** rather than physically controlling people.
+> This keeps the system safe, realistic, and ethical.
+
+---
 
 *Built for FAR AWAY 2026 — India's Biggest International Hackathon 🇮🇳🇯🇵*
