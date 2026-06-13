@@ -60,31 +60,41 @@ out to three parallel agents (Crowd / Train / Safety), a Decision Agent synthesi
 reports into a safety-validated plan, and an Action Agent executes it.
 
 ```mermaid
-flowchart TD
+flowchart TB
     subgraph Perception
-        GS["Gate Scanner<br/>platform + train ID only"] --> BE["Backend<br/>FastAPI"]
-        CAM["CCTV / Webcam"] --> CV["Density Estimator<br/>YOLOv8 + OpenCV"]
-        CV --> BE
-        BE --> LDS["Live Data Store<br/>aggregate, anonymous, TTL"]
+        SCAN[Gate Scanner<br/>POST /api/scan]
+        CV[Synthetic or YOLOv8 CV<br/>POST /api/density]
+        SCAN --> STORE[(In-Memory Store<br/>TTL expiry)]
+        CV --> STORE
+        SCHED[Mock Train Schedule]
     end
-    LDS --> SUP["Station Supervisor Agent"]
-    subgraph Decision["Hierarchical Multi-Agent Core (LangGraph)"]
-        SUP --> CR["Crowd Agent"]
-        SUP --> TR["Train Agent"]
-        SUP --> SA["Safety Agent"]
-        CR --> DEC["Decision Agent"]
-        TR --> DEC
-        SA --> DEC
-        DEC --> AA["Action Agent"]
+
+    subgraph Backend["FastAPI Backend"]
+        FUSION[Fusion Layer<br/>build_states]
+        STORE --> FUSION
+        SCHED --> FUSION
+        WS[WebSocket Hub<br/>/ws/dashboard<br/>/ws/display/:id]
+        LOOP[Agent Loop<br/>every 20s]
+        FUSION --> LOOP
+        LOOP --> WS
     end
-    AA --> ACT
-    subgraph ACT["Action Layer"]
-        HOLD["Hold train signal"]
-        RED["Redirect suggestion"]
-        TTS["TTS announcement"]
-        SIGN["Signage red/green"]
-        DASH["Control-room dashboard"]
+
+    subgraph Agent["Hierarchical Multi-Agent"]
+        SUP[Station Supervisor]
+        C[Crowd Agent]
+        T[Train Agent]
+        S[Safety Agent]
+        D[Decision Agent]
+        A[Action Agent]
+        SUP --> C & T & S
+        C & T & S --> D
+        D --> A
     end
+
+    LOOP --> SUP
+    A --> HOLD[Hold Train]
+    A --> SIGN[Signage / Redirect WS]
+    A --> LOG[Agent Decision Log]
 ```
 
 **Flow:** scan ticket → log anonymous arrival → cameras estimate density → Supervisor
@@ -138,9 +148,9 @@ Full planning suite lives in this repo:
 | Phase | Status | Notes |
 |-------|--------|-------|
 | 0 — Planning & Docs | Complete | 8 docs: PRD, TechSpec, AppFlow, Design, Schema, Plan, Tracker, Rules |
-| 1 — Backend Skeleton | Complete | FastAPI + WS + TTL expiry · 15/15 tests pass |
-| 2 — Computer Vision | Complete | YOLOv8 + synthetic fallback · 19/19 tests · real YOLO inference pending on-device run |
-| 3 — Agentic Core | Complete | Hierarchical multi-agent (Supervisor→Crowd∥Train∥Safety→Decision→Action) · 29/29 agent + 3 backend tests |
+| 1 — Backend Skeleton | Complete | FastAPI + WS + TTL expiry · 18 tests pass |
+| 2 — Computer Vision | Complete | YOLOv8 + synthetic fallback · 19 tests · real YOLO inference pending on-device run |
+| 3 — Agentic Core | Complete | Hierarchical multi-agent (Supervisor→Crowd∥Train∥Safety→Decision→Action) · 27 agent + 3 backend tests |
 | 4 — Frontend | Not started | React + Tailwind wa-modern |
 | 5 — Integration & Demo | Not started | Vercel + Railway deploy + privacy proof |
 

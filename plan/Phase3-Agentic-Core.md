@@ -1,7 +1,7 @@
 # Phase 3 — Agentic Decision Core (In-Depth) ⭐ Centerpiece
 ### Autonomous Platform Crowd-Balancing Agent
 **Goal:** A **layered hierarchical multi-agent system** — Station Supervisor → (Crowd ∥ Train ∥ Safety) → Decision → Action — where a hard Safety Agent gate is always authoritative and Claude handles only nuanced wording.
-**Status:** ✅ Done · 32/32 tests pass
+**Status:** ✅ Done · 27 agent tests pass + 1 skipped (langgraph not installed)
 **Duration estimate:** ~2 days · **Owner:** Agent/AI
 **Depends on:** Phase 1 (state + hold API), Phase 2 (real/synthetic density) · **Unblocks:** Phase 4 (action log UI)
 
@@ -96,37 +96,35 @@ LOG → AgentDecision (trigger, reasoning, plan, actions, source)
 
 ### 5.1 Crowd Agent (`agents/crowd.py`)
 
-**Input:** `PlatformState` snapshot for one platform
+**Input:** `PlatformState` snapshot (list of all platforms)
 **Output:** `CrowdReport`
 
 ```python
 @dataclass
 class CrowdReport:
-    crowded_rising: bool     # density >= RED threshold AND trend == RISING
-    density: float           # raw density_pct
-    trend: Trend             # RISING / FALLING / STABLE
+    crowded_rising: list[str]    # platform_ids that are RED AND rising
+    density: dict[str, float]    # platform_id -> density_pct
+    trend: dict[str, str]        # platform_id -> trend string
 ```
 
-Logic: classify zone; return `crowded_rising = zone == RED and trend == RISING`.
+Logic: scan all platforms; collect those with `zone == "RED" and trend == "rising"` into `crowded_rising`.
 No side-effects. Pure function → trivially unit-tested.
 
 ---
 
 ### 5.2 Train Agent (`agents/train.py`)
 
-**Input:** `PlatformState` (has `next_train: NextTrain | None`)
+**Input:** snapshot (list of all platforms with `next_train` fields)
 **Output:** `TrainReport`
 
 ```python
 @dataclass
 class TrainReport:
-    next_train: NextTrain | None
-    holdable: bool           # train exists AND not already held (no-thrash guard)
+    next_train: dict[str, dict | None]     # platform_id -> train slice
+    holdable: dict[str, bool]              # platform_id -> bool
 ```
 
-**No-thrash rule:** `holdable = next_train is not None and not next_train.held`.
-A second tick on an already-held train sees `held=True` and returns `holdable=False`
-— preventing stacked holds.
+**No-thrash rule:** `holdable = next_train exists AND not already held`. A second tick on an already-held train sees `held=True` and returns `holdable=False` — preventing stacked holds.
 
 ---
 
@@ -138,26 +136,30 @@ The **authority layer**. Two responsibilities:
 ```python
 @dataclass
 class SafetyReport:
-    breaches: list[str]      # list of platform_ids in RED
-    fail_safe: bool          # True if any signal is stale/missing
-    all_states: list[PlatformState]
+    zones: dict[str, str]       # platform_id -> zone string
+    breaches: list[str]         # platform_ids in RED
+    failsafe: bool              # True if snapshot is empty / stale
+    reason: str                 # human-readable status
 ```
 
-**b) `validate_plan(plan, all_states, policy) → bool`** — the hard gate
+**b) `validate_plan(plan, snapshot, policy) → (bool, str)`** — the hard gate
 ```python
-def validate_plan(plan, all_states, policy) -> bool:
+def validate_plan(plan, snapshot, policy) -> tuple[bool, str]:
     # Rule 1: hold duration must not exceed the cap
     if plan.hold and plan.hold.minutes > policy.hold_max_min:
-        return False
-    # Rule 2: redirect target must not be RED or high-YELLOW
+        return False, "hold exceeds cap"
+    # Rule 2: redirect must be suggestion mode
+    if plan.redirect and plan.redirect.mode != "suggestion":
+        return False, "redirect must be a suggestion"
+    # Rule 3: redirect target must be safe (GREEN/low-YELLOW, spare capacity)
     if plan.redirect:
-        target_state = get_state(plan.redirect.to_platform, all_states)
-        if not is_safe_target(target_state, policy):
-            return False
-    return True
+        target = find(plan.redirect.to_platform, snapshot)
+        if not is_safe_target(target, policy):
+            return False, "redirect target not safe"
+    return True, "ok"
 ```
 
-`is_safe_target` checks zone is GREEN or low-YELLOW (density < yellow_max – 5).
+`is_safe_target` checks zone is GREEN or YELLOW with density < `safe_target_max_pct` (75%).
 
 This is called from Decision Agent before returning any plan. **No LLM call can bypass it.**
 
@@ -171,19 +173,22 @@ This is called from Decision Agent before returning any plan. **No LLM call can 
 ```python
 @dataclass
 class DecisionOutput:
-    plan: Plan | None        # None = no action (all safe / fail-safe / no target)
-    reasoning: str           # plain-English for log + dashboard
-    source: str              # "rule" | "rule+llm"
+    act: bool                   # whether to take action
+    reason: str                 # plain-English for log + dashboard
+    red_p: dict | None = None   # the RED platform state
+    target: dict | None = None  # the best alternative platform state
+    plan: Plan | None = None    # None = no action
 ```
 
 **Decision logic:**
-1. If `safety_r.fail_safe` → return `plan=None, reasoning="fail-safe: stale signal"`.
-2. If not `crowd_r.crowded_rising` → return `plan=None, reasoning="all platforms safe"`.
-3. If not `train_r.holdable` → return `plan=None, reasoning="no holdable train"`.
-4. Find best redirect target via `best_alternative()` (GREEN/low-YELLOW + eta ≤ source + grace).
-5. Build `Plan(hold, redirect, announce=None)`.
-6. Call `safety_r.validate_plan(plan)` → if False, return `plan=None, reasoning="plan failed safety gate"`.
-7. Return validated plan.
+1. If `safety_r.failsafe` → return `act=False, reason="fail-safe: stale signal"`.
+2. If `crowd_r.crowded_rising` is empty → return `act=False, reason="all platforms safe"`.
+3. Pick first RED+rising platform as `red_p`.
+4. If not `train_r.holdable[red_id]` → return `act=False, reason="already holding / no train"`.
+5. Find best redirect target via `best_alternative()` (GREEN/low-YELLOW + eta ≤ source + grace).
+6. Build `Plan(hold, redirect or None, announce=True)`.
+7. Call `safety.validate_plan(plan, snapshot, policy)` → if rejected, return `act=False`.
+8. Return validated plan with `act=True`.
 
 `best_alternative()` prefers greenest + soonest-train among eligible platforms.
 
@@ -191,15 +196,15 @@ class DecisionOutput:
 
 ### 5.5 Action Agent (`agents/action.py`)
 
-**Input:** `DecisionOutput` + snapshot + draft (bilingual wording)
+**Input:** `DecisionOutput` + snapshot + draft (bilingual wording function)
 **Output:** `(AgentDecision record dict, SideEffects)`
 
 ```python
 @dataclass
 class SideEffects:
-    hold_calls: list[dict]       # {train_id, minutes} — for scheduling API
-    ws_messages: list[dict]      # redirect / signage / agent_action — for WS broadcast
-    tts_text: str | None         # announcement text (JA then EN)
+    hold: Hold | None = None
+    dashboard_msgs: list[dict] = field(default_factory=list)
+    display_msgs: list[tuple[str, dict]] = field(default_factory=list)  # (pid, msg)
 ```
 
 Builds the `AgentDecision` record (see [../Schema.md]) and the side-effects payload. Does **not** call external APIs directly in tests — returns the side effects for the caller to execute. This keeps Action Agent pure and unit-testable.
@@ -208,28 +213,30 @@ Builds the `AgentDecision` record (see [../Schema.md]) and the side-effects payl
 
 ### 5.6 Station Supervisor Agent (`agents/supervisor.py`)
 
-**Orchestrates each tick.**
+**Orchestrates each tick.** Calls the three perception agents sequentially (they are pure functions, fast enough synchronously), then drives Decision → Action.
 
 ```python
-async def gather_reports(snapshot, platform_id, policy):
-    crowd_r, train_r, safety_r = await asyncio.gather(
-        crowd.analyze(snapshot[platform_id]),
-        train.analyze(snapshot[platform_id]),
-        safety.analyze(snapshot),
+def gather_reports(snapshot, policy):
+    """Run the three independent perception agents."""
+    return (
+        crowd.analyze(snapshot),
+        train.analyze(snapshot),
+        safety.analyze(snapshot, policy),
     )
-    return crowd_r, train_r, safety_r
 
-def run_tick(all_states, policy, draft_fn=make_draft):
-    # 1. fan out — parallel analysis
-    crowd_r, train_r, safety_r = asyncio.run(gather_reports(...))
-    # 2. decision
-    decision_out = decision.decide(snapshot, crowd_r, train_r, safety_r, policy)
-    # 3. wording (template or Claude)
-    draft = draft_fn(decision_out, snapshot) if decision_out.plan else ""
-    # 4. action
-    record, side_effects = action.act(decision_out, snapshot, draft)
-    return TickResult(record=record, side_effects=side_effects, decision=decision_out)
+def run_tick(snapshot, policy, draft=None) -> TickResult:
+    crowd_r, train_r, safety_r = gather_reports(snapshot, policy)
+    d = decision.decide(snapshot, crowd_r, train_r, safety_r, policy)
+    if not d.act:
+        return TickResult(False, d.reason)
+    record, side_effects = action.act(d, snapshot, draft)
+    return TickResult(True, d.reason, decision=record, side_effects=side_effects)
 ```
+
+> Note: the plan originally specified `asyncio.gather` for parallel fan-out. The
+> actual implementation calls the agents sequentially — functionally identical since
+> all three are pure, sub-millisecond functions. The LangGraph form (`graph.py`)
+> provides the documented parallel fan-out/fan-in structure.
 
 ---
 
@@ -342,19 +349,17 @@ def run_tick():
 
 ---
 
-## 10. Testing (32 tests)
+## 10. Testing (27 agent tests + 1 skipped)
 
 | File | What it tests |
 |---|---|
-| `test_crowd.py` | GREEN→not-crowded, RED+rising→crowded, RED+stable→not-crowded |
-| `test_train.py` | no train → not holdable; held train → not holdable (no-thrash); available → holdable |
-| `test_safety.py` | validate_plan: hold over cap → reject; redirect into RED → reject; hostile draft → reject (LLM guard) |
-| `test_decision.py` | fail-safe short-circuit; worked example → HOLD+REDIRECT plan; no holdable train → no-op |
-| `test_action.py` | plan→side-effects structure; no-plan→empty side effects |
-| `test_supervisor.py` | full tick on worked example → correct record; all-green → no-action |
-| `test_graph.py` | LangGraph parity: graph.invoke == run_tick for worked example (pytest.importorskip) |
-| `test_llm.py` | template_draft produces bilingual text; validation rejects imperative wording |
-| `test_agent_endpoint.py` (backend) | POST /api/agent/tick → 200; drive A to RED rising → verify hold+redirect in response |
+| `test_agents.py` | Crowd: RED+rising flagged; Train: holdability + no-thrash; Safety: breaches + failsafe |
+| `test_decision.py` | best_alternative selection, worked example → HOLD+REDIRECT, hold-only, no-action, no-thrash |
+| `test_safety.py` | validate_plan: over-long hold, command redirect, unsafe target, hostile LLM draft |
+| `test_supervisor.py` | Full tick: golden scenario, side-effects structure, no-action safe, failsafe empty, hold-only |
+| `test_graph_parity.py` | LangGraph parity: graph.invoke == run_tick (skipped if langgraph not installed) |
+| `test_llm_fallback.py` | template_draft bilingual text, calm wording, imperative rejection, hold-only template |
+| `test_agent_endpoint.py` (backend) | POST /api/agent/tick → hold+redirect; decisions history; no-action when safe |
 
 ---
 
@@ -371,15 +376,16 @@ def run_tick():
 
 ---
 
-## 12. Deliverables (all ✅)
+## 12. Deliverables (all done)
 
 - [x] 6-agent hierarchy: supervisor, crowd, train, safety, decision, action
 - [x] `agent/graph.py` — LangGraph StateGraph (fan-out / fan-in), parity-tested
 - [x] Hard safety gate (`validate_plan`) — authoritative, LLM cannot override
 - [x] Rule-only + template wording fallback (no API key required)
 - [x] Backend integration: `/api/agent/tick` + autonomous `agent_loop`
-- [x] 32 tests covering all agents, worked example, safety gate, and LangGraph parity
+- [x] 27 agent tests + 3 backend agent tests covering all agents, worked example, safety gate
 - [x] `AgentDecision` records logged and streamed to `/ws/dashboard`
+- [ ] LangGraph parity verification (test exists but skipped — needs langgraph installed)
 
 ---
 
