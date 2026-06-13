@@ -12,50 +12,80 @@ export default function StatusBar({ connected, overrideMode }) {
   const ss = time.getSeconds().toString().padStart(2, '0')
 
   return (
-    <header
-      style={{ backgroundColor: '#0f1e36', borderBottom: '1px solid #2A3A5C' }}
-      className="flex items-center justify-between px-6 py-3"
-    >
-      <div className="flex items-center gap-3">
-        <span style={{ color: '#2E6F95' }} className="text-xl">🚉</span>
-        <div>
-          <span style={{ color: '#F7F4ED' }} className="text-base font-semibold tracking-wide">
-            Crowd-Balancing Agent
-          </span>
-          <span style={{ color: '#8A9BB5' }} className="text-xs ml-3 uppercase tracking-widest">
-            Autonomous Platform Manager
-          </span>
-        </div>
+    <header style={{
+      backgroundColor: '#FFFFFF',
+      borderBottom: '1px solid #E5E1D8',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '0 32px',
+      height: 56,
+      position: 'sticky',
+      top: 0,
+      zIndex: 50,
+    }}>
+      {/* Logo */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontSize: 18 }}>🚉</span>
+        <span style={{ color: '#1A1A1A', fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>
+          Crowd-Balancing Agent
+        </span>
+        <span style={{
+          backgroundColor: '#F0EEE9',
+          color: '#6B7280',
+          fontSize: 11,
+          fontWeight: 500,
+          padding: '2px 8px',
+          borderRadius: 9999,
+          letterSpacing: '0.04em',
+          marginLeft: 4,
+        }}>
+          Station AI
+        </span>
       </div>
 
-      <div className="flex items-center gap-5">
+      {/* Right side */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
         {overrideMode ? (
-          <span
-            style={{ backgroundColor: '#E8A33D22', color: '#E8A33D', border: '1px solid #E8A33D66' }}
-            className="text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-widest"
-          >
+          <span style={{
+            backgroundColor: '#FFFBEB',
+            color: '#B45309',
+            border: '1px solid #FDE68A',
+            fontSize: 11,
+            fontWeight: 600,
+            padding: '4px 12px',
+            borderRadius: 9999,
+            letterSpacing: '0.04em',
+          }}>
             ⚠ Override Mode
           </span>
         ) : (
-          <span
-            style={{ backgroundColor: '#5C8A3A22', color: '#5C8A3A', border: '1px solid #5C8A3A66' }}
-            className="text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-widest"
-          >
+          <span style={{
+            backgroundColor: '#F0FFF4',
+            color: '#5C8A3A',
+            border: '1px solid #BBF7D0',
+            fontSize: 11,
+            fontWeight: 600,
+            padding: '4px 12px',
+            borderRadius: 9999,
+            letterSpacing: '0.04em',
+          }}>
             ● Autonomous
           </span>
         )}
 
-        <div className="flex items-center gap-2">
-          <span
-            className={`w-2 h-2 rounded-full ${connected ? '' : 'opacity-40'}`}
-            style={{ backgroundColor: connected ? '#5C8A3A' : '#8A9BB5' }}
-          />
-          <span style={{ color: '#8A9BB5' }} className="text-xs">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{
+            width: 7, height: 7, borderRadius: '50%',
+            backgroundColor: connected ? '#5C8A3A' : '#D1D5DB',
+            display: 'inline-block',
+          }} />
+          <span style={{ color: '#6B7280', fontSize: 12 }}>
             {connected ? 'Live' : 'Connecting…'}
           </span>
         </div>
 
-        <span style={{ color: '#F7F4ED', fontVariantNumeric: 'tabular-nums' }} className="text-sm font-mono">
+        <span style={{ color: '#1A1A1A', fontSize: 13, fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}>
           {hh}:{mm}:{ss}
         </span>
       </div>

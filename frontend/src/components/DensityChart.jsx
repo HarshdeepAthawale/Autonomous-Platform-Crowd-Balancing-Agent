@@ -1,6 +1,6 @@
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  ReferenceLine, Legend, ResponsiveContainer,
+  ReferenceLine, ResponsiveContainer,
 } from 'recharts'
 
 const PLATFORM_COLORS = ['#2E6F95', '#D7483B', '#E8A33D', '#5C8A3A']
@@ -21,9 +21,7 @@ function buildMergedSeries(graphSeries) {
   })
   return sorted.map(ts => {
     const row = { ts, label: formatTime(ts) }
-    Object.keys(graphSeries).forEach(pid => {
-      row[pid] = byPlatform[pid][ts] ?? null
-    })
+    Object.keys(graphSeries).forEach(pid => { row[pid] = byPlatform[pid][ts] ?? null })
     return row
   })
 }
@@ -31,10 +29,8 @@ function buildMergedSeries(graphSeries) {
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
-    <div style={{ backgroundColor: '#0f1e36', border: '1px solid #2A3A5C', borderRadius: 10, padding: '10px 14px' }}>
-      <p style={{ color: '#8A9BB5', fontSize: 11, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-        {label}
-      </p>
+    <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E1D8', borderRadius: 10, padding: '10px 14px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+      <p style={{ color: '#6B7280', fontSize: 11, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</p>
       {payload.map(p => (
         <p key={p.dataKey} style={{ color: p.color, fontSize: 13, margin: '2px 0', fontWeight: 600 }}>
           Platform {p.dataKey}: {p.value != null ? `${Math.round(p.value)}%` : '—'}
@@ -49,57 +45,71 @@ export default function DensityChart({ graphSeries }) {
   const data = buildMergedSeries(graphSeries)
 
   return (
-    <div style={{ backgroundColor: '#243356', border: '1px solid #2A3A5C', borderRadius: 14, padding: '20px 24px' }}>
-      <div className="flex items-center justify-between mb-4">
+    <div style={{
+      backgroundColor: '#FFFFFF',
+      border: '1px solid #E5E1D8',
+      borderRadius: 16,
+      padding: '24px 28px',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
-          <p style={{ color: '#8A9BB5', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>
+          <p style={{ color: '#6B7280', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 3px' }}>
             Density Over Time
           </p>
-          <p style={{ color: '#F7F4ED', fontSize: 14, fontWeight: 600, margin: '2px 0 0' }}>
-            Platform Comparison
-          </p>
+          <p style={{ color: '#1A1A1A', fontSize: 15, fontWeight: 600, margin: 0 }}>Platform Comparison</p>
         </div>
-        <div className="flex gap-4">
-          <span style={{ color: '#8A9BB5', fontSize: 11 }}>
-            <span style={{ color: '#E8A33D' }}>—</span> 60% Yellow threshold
-          </span>
-          <span style={{ color: '#8A9BB5', fontSize: 11 }}>
-            <span style={{ color: '#D7483B' }}>—</span> 85% Red threshold
-          </span>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          {platformIds.map((pid, i) => (
+            <div key={pid} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 20, height: 2, backgroundColor: PLATFORM_COLORS[i % PLATFORM_COLORS.length], display: 'inline-block', borderRadius: 2 }} />
+              <span style={{ color: '#6B7280', fontSize: 12 }}>Platform {pid}</span>
+            </div>
+          ))}
+          <div style={{ width: 1, height: 14, backgroundColor: '#E5E1D8' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ color: '#E8A33D', fontSize: 13 }}>—</span>
+            <span style={{ color: '#6B7280', fontSize: 11 }}>60%</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ color: '#D7483B', fontSize: 13 }}>—</span>
+            <span style={{ color: '#6B7280', fontSize: 11 }}>85%</span>
+          </div>
         </div>
       </div>
 
       {data.length === 0 ? (
         <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <p style={{ color: '#8A9BB5', fontSize: 13 }}>Waiting for data…</p>
+          <p style={{ color: '#9CA3AF', fontSize: 13 }}>Waiting for data…</p>
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={220}>
           <LineChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: -10 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#2A3A5C" vertical={false} />
+            <CartesianGrid strokeDasharray="2 4" stroke="#F0EEE9" vertical={false} />
             <XAxis
               dataKey="label"
-              tick={{ fill: '#8A9BB5', fontSize: 10 }}
-              axisLine={{ stroke: '#2A3A5C' }}
+              tick={{ fill: '#9CA3AF', fontSize: 10 }}
+              axisLine={{ stroke: '#E5E1D8' }}
               tickLine={false}
               interval="preserveStartEnd"
             />
             <YAxis
               domain={[0, 100]}
-              tick={{ fill: '#8A9BB5', fontSize: 10 }}
+              tick={{ fill: '#9CA3AF', fontSize: 10 }}
               axisLine={false}
               tickLine={false}
               tickFormatter={v => `${v}%`}
             />
             <Tooltip content={<CustomTooltip />} />
-            <ReferenceLine y={60} stroke="#E8A33D" strokeDasharray="4 3" strokeOpacity={0.5} />
-            <ReferenceLine y={85} stroke="#D7483B" strokeDasharray="4 3" strokeOpacity={0.5} />
+            <ReferenceLine y={60} stroke="#E8A33D" strokeDasharray="4 3" strokeOpacity={0.6} />
+            <ReferenceLine y={85} stroke="#D7483B" strokeDasharray="4 3" strokeOpacity={0.6} />
             {platformIds.map((pid, i) => (
               <Line
                 key={pid}
                 type="monotone"
                 dataKey={pid}
-                name={`Platform ${pid}`}
                 stroke={PLATFORM_COLORS[i % PLATFORM_COLORS.length]}
                 strokeWidth={2}
                 dot={false}
@@ -107,10 +117,6 @@ export default function DensityChart({ graphSeries }) {
                 animationDuration={300}
               />
             ))}
-            <Legend
-              wrapperStyle={{ paddingTop: 12, fontSize: 12, color: '#8A9BB5' }}
-              formatter={(v) => <span style={{ color: '#8A9BB5' }}>Platform {v}</span>}
-            />
           </LineChart>
         </ResponsiveContainer>
       )}

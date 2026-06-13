@@ -11,9 +11,9 @@ export function classifyZone(densityPct) {
 }
 
 export const ZONE_COLOR = {
-  GREEN:  { bg: '#5C8A3A', text: '#F7F4ED', label: 'AVAILABLE',  shape: '●' },
-  YELLOW: { bg: '#E8A33D', text: '#1A1A1A', label: 'FILLING UP', shape: '◆' },
-  RED:    { bg: '#D7483B', text: '#F7F4ED', label: 'CROWDED',    shape: '■' },
+  GREEN:  { bg: '#5C8A3A', text: '#FFFFFF', label: 'AVAILABLE',  shape: '●', lightBg: '#F0FFF4' },
+  YELLOW: { bg: '#E8A33D', text: '#FFFFFF', label: 'FILLING UP', shape: '◆', lightBg: '#FFFBEB' },
+  RED:    { bg: '#D7483B', text: '#FFFFFF', label: 'CROWDED',    shape: '■', lightBg: '#FEF2F2' },
 }
 
 export const TREND_ICON = {

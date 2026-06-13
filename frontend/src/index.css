@@ -22,8 +22,8 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 body {
-  background-color: #1B2A4A;
-  color: #F7F4ED;
+  background-color: #F0EEE9;
+  color: #1A1A1A;
   font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
