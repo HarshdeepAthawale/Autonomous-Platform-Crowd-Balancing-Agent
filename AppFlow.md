@@ -40,18 +40,18 @@ fused live state, which the agent polls on every tick and acts upon.
 
 ```mermaid
 flowchart TD
-    A[1. PERCEIVE\ndensity %, arrival rate, train ETAs] --> B[2. EVALUATE\nclassify zones\nGreen<60 / Yellow 60-85 / Red>85]
-    B --> C{Any platform RED\nand rising?}
-    C -- No --> L[5. LOG\nrecord state, update graph]
-    C -- Yes --> D{Nearby platform\nGreen/Yellow with\nnear-term train?}
-    D -- No --> E[Hold only + alert operator\n(no safe redirect target)]
-    D -- Yes --> F[3. DECIDE\nplan: hold + redirect + announce\nLLM drafts wording]
-    F --> G[4. ACT]
+    A["1. PERCEIVE<br/>density %, arrival rate, train ETAs"] --> B["2. EVALUATE<br/>classify zones<br/>Green &lt;60 / Yellow 60-85 / Red &gt;85"]
+    B --> C{"Any platform RED<br/>and rising?"}
+    C -- No --> L["5. LOG<br/>record state, update graph"]
+    C -- Yes --> D{"Nearby platform<br/>Green/Yellow with<br/>near-term train?"}
+    D -- No --> E["Hold only + alert operator<br/>no safe redirect target"]
+    D -- Yes --> F["3. DECIDE<br/>plan: hold + redirect + announce<br/>LLM drafts wording"]
+    F --> G["4. ACT"]
     E --> G
-    G --> G1[Hold signal → scheduling API]
-    G --> G2[Redirect suggestion → displays]
-    G --> G3[TTS announcement]
-    G --> G4[Signage red/green + counts]
+    G --> G1["Hold signal → scheduling API"]
+    G --> G2["Redirect suggestion → displays"]
+    G --> G3["TTS announcement"]
+    G --> G4["Signage red/green + counts"]
     G1 --> L
     G2 --> L
     G3 --> L
@@ -96,10 +96,10 @@ announcements.**
 ```mermaid
 sequenceDiagram
     participant Cam as Camera/YOLOv8
-    participant BE as Backend (FastAPI)
-    participant AG as Agent (LangGraph)
+    participant BE as Backend FastAPI
+    participant AG as Agent LangGraph
     participant LLM as Claude
-    participant SCH as Scheduling (mock)
+    participant SCH as Scheduling mock
     participant DSP as Displays/Signage
     participant TTS as TTS
     participant DSH as Dashboard
@@ -108,12 +108,12 @@ sequenceDiagram
         Cam->>BE: density reading
     end
     loop every 15-30s
-        AG->>BE: GET /api/state (perceive)
-        AG->>AG: evaluate zones (rule engine)
+        AG->>BE: GET /api/state - perceive
+        AG->>AG: evaluate zones - rule engine
         alt RED + safe target
             AG->>LLM: draft announcement + phrasing
             LLM-->>AG: wording + reasoning
-            AG->>SCH: POST hold (capped, reversible)
+            AG->>SCH: POST hold - capped, reversible
             AG->>DSP: redirect suggestion + colors
             AG->>TTS: play announcement
             AG->>DSH: action log entry + reason
@@ -140,11 +140,11 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    T[Ticket QR/barcode] --> P[Edge parser]
-    P -->|keep platform_id, train_id| OK[Arrival event + timestamp]
-    P -->|drop name, phone, payment, ID| X[Discarded immediately]
-    OK --> S[Live Data Store\naggregate count only]
-    S -->|TTL ≤1h after departure| DEL[Auto-expire / purge]
+    T["Ticket QR/barcode"] --> P["Edge parser"]
+    P -->|keep platform_id, train_id| OK["Arrival event + timestamp"]
+    P -->|drop name, phone, payment, ID| X["Discarded immediately"]
+    OK --> S["Live Data Store<br/>aggregate count only"]
+    S -->|TTL ≤1h after departure| DEL["Auto-expire / purge"]
 ```
 
 ---
