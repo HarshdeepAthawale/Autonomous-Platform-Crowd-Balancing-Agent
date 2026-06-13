@@ -12,7 +12,7 @@
 | Phase | Title | Status | Progress |
 |-------|-------|--------|----------|
 | 0 | Planning & Docs | ✅ Done | 8/8 docs |
-| 1 | Foundation & Backend Skeleton | 🔲 Not started | 0/8 |
+| 1 | Foundation & Backend Skeleton | ✅ Done | 8/8 · 10 tests pass |
 | 2 | Computer Vision Density Pipeline | 🔲 Not started | 0/6 |
 | 3 | Agentic Decision Core | 🔲 Not started | 0/6 |
 | 4 | Frontend: Dashboard, Displays & TTS | 🔲 Not started | 0/8 |
@@ -34,17 +34,17 @@
 
 ---
 
-## Phase 1 — Foundation & Backend Skeleton 🔲
+## Phase 1 — Foundation & Backend Skeleton ✅
 | # | Task | Status | Owner | Notes |
 |---|------|--------|-------|-------|
-| 1.1 | Repo scaffold (backend/cv/frontend/agent) | 🔲 | | |
-| 1.2 | FastAPI: `/api/scan`, `/api/density`, `/api/state` | 🔲 | | |
-| 1.3 | Edge ticket parser (platform+train only) | 🔲 | | Privacy P0 |
-| 1.4 | Live Data Store (no PII fields) | 🔲 | | Per Schema.md |
-| 1.5 | Mock TrainSchedule + `/api/scheduling/hold` | 🔲 | | |
-| 1.6 | WebSocket `/ws/dashboard`, `/ws/display/{id}` | 🔲 | | |
-| 1.7 | TTL/expiry sweep job | 🔲 | | ≤1h after departure |
-| 1.8 | Config constants | 🔲 | | thresholds, hold cap |
+| 1.1 | Repo scaffold (backend/) | ✅ | | app/ + routers/ + tests/ |
+| 1.2 | FastAPI: `/api/scan`, `/api/density`, `/api/state` | ✅ | | + `/health` |
+| 1.3 | Edge ticket parser (platform+train only) | ✅ | | ScanIn drops PII keys |
+| 1.4 | Live Data Store (no PII fields) | ✅ | | in-memory + rolling series |
+| 1.5 | Mock TrainSchedule + `/api/scheduling/hold` | ✅ | | hold hard-capped |
+| 1.6 | WebSocket `/ws/dashboard`, `/ws/display/{id}` | ✅ | | channel fan-out |
+| 1.7 | TTL/expiry sweep job | ✅ | | lifespan background task |
+| 1.8 | Config constants | ✅ | | env-driven Settings |
 
 ---
 
