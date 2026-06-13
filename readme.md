@@ -88,7 +88,7 @@ human intervention** and **zero personal data collection**.
 | Voice | ElevenLabs / gTTS | English, Hindi, Japanese announcements |
 | Backend | FastAPI + WebSockets | Real-time event handling |
 | Frontend | React + Tailwind CSS | Control room dashboard |
-| Hosting | AWS EC2 | Demo deployment |
+
 
 ---
 
@@ -110,14 +110,6 @@ to the core agent logic, only camera/sensor placement.
 system can be deployed without violating India's DPDP Act 2023 or Japan's APPI —
 making it genuinely launch-ready, not just a hackathon concept.
 
----
 
-## 🎬 Demo
-
-A 2-platform live demo (Platform A: crowded, Platform B: scattered) shows the full
-loop — detection → agent decision → train hold → redirect → multilingual
-announcement → dashboard update — end to end in under a minute.
-
----
 
 *Built for FAR AWAY 2026 — India's Biggest International Hackathon 🇮🇳🇯🇵*
