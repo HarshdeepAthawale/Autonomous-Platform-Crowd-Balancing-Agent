@@ -2,11 +2,15 @@
 
 Values are env-driven (see ../.env.example) per Rules.md §4.2.
 """
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=str(_ENV_FILE), extra="ignore")
 
     # Zone thresholds (Schema.md / TechSpecifications.md):
     #   density < green_max            -> GREEN
@@ -28,6 +32,15 @@ class Settings(BaseSettings):
 
     # Reasoning layer (Phase 3) — blank => rule-only fallback
     claude_api_key: str = ""
+    groq_api_key: str = ""
+    llm_provider: str = "groq"  # "groq" (free, Llama 3) or "claude"
+
+    @property
+    def effective_llm_key(self) -> str:
+        """Return the API key for the active provider."""
+        if self.llm_provider == "claude":
+            return self.claude_api_key
+        return self.groq_api_key
 
 
 settings = Settings()

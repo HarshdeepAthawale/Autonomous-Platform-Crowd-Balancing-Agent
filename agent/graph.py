@@ -13,7 +13,7 @@ reliability; this module provides the documented graph form.
 from typing import TypedDict
 
 from .agents import action, crowd, decision, safety, train
-from .types import (CrowdReport, DecisionOutput, Policy, SafetyReport, TickResult,
+from .models import (CrowdReport, DecisionOutput, Policy, SafetyReport, TickResult,
                     TrainReport)
 
 

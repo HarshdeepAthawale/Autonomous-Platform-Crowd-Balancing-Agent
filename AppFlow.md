@@ -106,26 +106,31 @@ announcements.**
 sequenceDiagram
     participant BE as Backend FastAPI
     participant SUP as Supervisor Agent
-    participant PAR as Crowd/Train/Safety (parallel)
+    participant CR as Crowd Agent
+    participant TR as Train Agent
+    participant SA as Safety Agent
     participant DEC as Decision Agent
     participant ACT as Action Agent
     participant SCH as Scheduling mock
     participant DSP as Displays/Signage
     participant DSH as Dashboard
 
-    loop every 15-30s (or manual tick)
-        SUP->>BE: GET /api/state - perceive snapshot
-        SUP->>PAR: fan out (parallel)
-        PAR-->>DEC: Crowd + Train + Safety reports
-        DEC->>DEC: synthesize -> Plan; Safety gate validates
-        alt act (RED + safe plan)
-            DEC->>ACT: validated Plan
-            ACT->>SCH: POST hold - capped, reversible
-            ACT->>DSP: redirect suggestion + signage colors
-            ACT->>DSH: agent_action + calm bilingual wording
-        else no action (all safe / no target / fail-safe)
-            DEC->>DSH: log state only
-        end
+    Note over SUP: every 15-30s or manual tick
+    SUP->>BE: GET /api/state
+    SUP->>CR: analyze density+trend
+    SUP->>TR: analyze ETAs+holdability
+    SUP->>SA: analyze zones+breaches
+    CR-->>DEC: CrowdReport
+    TR-->>DEC: TrainReport
+    SA-->>DEC: SafetyReport
+    DEC->>DEC: synthesize Plan, Safety gate validates
+    alt act: RED + safe plan
+        DEC->>ACT: validated Plan
+        ACT->>SCH: POST hold - capped, reversible
+        ACT->>DSP: redirect suggestion + signage
+        ACT->>DSH: agent_action + bilingual wording
+    else no action
+        DEC->>DSH: log state only
     end
 ```
 

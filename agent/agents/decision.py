@@ -3,7 +3,7 @@
 Consumes the three parallel reports and produces a validated DecisionOutput.
 Every plan is checked by the Safety Agent's hard gate before it leaves here.
 """
-from ..types import (CrowdReport, DecisionOutput, Hold, Plan, Policy, Redirect,
+from ..models import (CrowdReport, DecisionOutput, Hold, Plan, Policy, Redirect,
                      SafetyReport, TrainReport)
 from . import safety
 

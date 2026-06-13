@@ -5,7 +5,7 @@ Two jobs:
   • validate_plan() — the NON-NEGOTIABLE gate every plan must pass (Rules.md §1).
                       The Decision/LLM layer can never bypass this.
 """
-from ..types import Plan, Policy, SafetyReport
+from ..models import Plan, Policy, SafetyReport
 
 
 def analyze(snapshot: list[dict], policy: Policy) -> SafetyReport:

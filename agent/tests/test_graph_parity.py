@@ -18,6 +18,6 @@ def test_graph_matches_supervisor_golden(worked_example, policy):
 
 
 def test_graph_no_action_when_safe(policy):
-    from tests.conftest import platform
+    from agent.tests.conftest import platform
     snap = [platform("A", 30.0, "GREEN", "stable", "12045", 6.0)]
     assert run_graph(snap, policy).action is False

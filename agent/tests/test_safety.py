@@ -1,7 +1,7 @@
 """Hard safety rules — the LLM/draft can never widen what's allowed (Rules.md §1)."""
 from agent.agents.safety import validate_plan
 from agent.agents.supervisor import run_tick as decide_tick
-from agent.types import Hold, Plan, Policy, Redirect
+from agent.models import Hold, Plan, Policy, Redirect
 from tests.conftest import platform
 
 

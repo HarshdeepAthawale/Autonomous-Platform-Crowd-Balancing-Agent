@@ -1,6 +1,6 @@
 """Unit tests for the three parallel perception agents (Crowd / Train / Safety)."""
 from agent.agents import crowd, safety, train
-from agent.types import Policy
+from agent.models import Policy
 from tests.conftest import platform
 
 

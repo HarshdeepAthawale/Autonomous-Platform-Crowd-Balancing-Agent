@@ -8,7 +8,7 @@ key is set). The Action Agent never re-decides — it only executes.
 from datetime import datetime, timezone
 
 from ..llm import template_draft
-from ..types import DecisionOutput, Plan, SideEffects
+from ..models import DecisionOutput, Plan, SideEffects
 
 
 def _now_iso() -> str:

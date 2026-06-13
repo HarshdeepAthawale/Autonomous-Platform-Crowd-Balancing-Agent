@@ -1,7 +1,7 @@
 """Shared snapshot fixtures mirroring backend GET /api/state output."""
 import pytest
 
-from agent.types import Policy
+from agent.models import Policy
 
 
 def platform(pid, density_pct, zone, trend, train_id, eta_min, held=False, capacity=200):

@@ -3,7 +3,7 @@
 Answers: which platform has which next train, and can it be held (exists and not
 already held — no-thrash)? Pure, no I/O.
 """
-from ..types import TrainReport
+from ..models import TrainReport
 
 
 def analyze(snapshot: list[dict]) -> TrainReport:

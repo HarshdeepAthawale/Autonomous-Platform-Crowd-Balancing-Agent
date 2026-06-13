@@ -2,7 +2,7 @@
 
 Answers: which platforms are crowded and getting worse? Pure, fast, no I/O.
 """
-from ..types import CrowdReport
+from ..models import CrowdReport
 
 
 def analyze(snapshot: list[dict]) -> CrowdReport:

@@ -17,7 +17,7 @@ if str(_ROOT) not in sys.path:
 
 from agent.agents.supervisor import run_tick as decide_tick   # noqa: E402
 from agent.llm import make_draft        # noqa: E402
-from agent.types import Policy          # noqa: E402
+from agent.models import Policy          # noqa: E402
 
 from .config import settings            # noqa: E402
 from .deps import schedule, store       # noqa: E402
@@ -29,8 +29,9 @@ POLICY = Policy(
     grace_min=settings.grace_min,
     yellow_max=settings.yellow_max,
 )
-# No CLAUDE_API_KEY => deterministic template wording (rule-only).
-DRAFT = make_draft(settings.claude_api_key or None)
+# No API key => deterministic template wording (rule-only).
+LLM_KEY = settings.effective_llm_key or None
+DRAFT = make_draft(LLM_KEY, provider=settings.llm_provider)
 
 _history: deque[dict] = deque(maxlen=50)
 

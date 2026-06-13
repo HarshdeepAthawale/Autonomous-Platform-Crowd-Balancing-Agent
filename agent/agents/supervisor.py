@@ -6,7 +6,7 @@ Orchestrates one tick:
   3. if it decides to act, hand the plan to the Action Agent
 Returns a TickResult the runner executes.
 """
-from ..types import Policy, TickResult
+from ..models import Policy, TickResult
 from . import action, crowd, decision, safety, train
 
 

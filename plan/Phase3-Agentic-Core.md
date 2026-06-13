@@ -1,7 +1,7 @@
 # Phase 3 — Agentic Decision Core (In-Depth) ⭐ Centerpiece
 ### Autonomous Platform Crowd-Balancing Agent
 **Goal:** A **layered hierarchical multi-agent system** — Station Supervisor → (Crowd ∥ Train ∥ Safety) → Decision → Action — where a hard Safety Agent gate is always authoritative and Claude handles only nuanced wording.
-**Status:** ✅ Done · 27 agent tests pass + 1 skipped (langgraph not installed)
+**Status:** ✅ Done · 29 agent tests pass (including 2 LangGraph parity tests)
 **Duration estimate:** ~2 days · **Owner:** Agent/AI
 **Depends on:** Phase 1 (state + hold API), Phase 2 (real/synthetic density) · **Unblocks:** Phase 4 (action log UI)
 
@@ -33,7 +33,7 @@
 
 ```
 agent/
-├── types.py            # shared dataclasses: Policy, Hold, Redirect, Plan, *Report, DecisionOutput, SideEffects, TickResult
+├── models.py           # shared dataclasses: Policy, Hold, Redirect, Plan, *Report, DecisionOutput, SideEffects, TickResult
 ├── llm.py              # template_draft(), claude_draft(), make_draft() + validation + fallback
 ├── graph.py            # LangGraph StateGraph: supervisor→crowd+train+safety→decision→action
 ├── agents/
@@ -349,7 +349,7 @@ def run_tick():
 
 ---
 
-## 10. Testing (27 agent tests + 1 skipped)
+## 10. Testing (29 agent tests + 3 backend agent tests)
 
 | File | What it tests |
 |---|---|
@@ -383,9 +383,9 @@ def run_tick():
 - [x] Hard safety gate (`validate_plan`) — authoritative, LLM cannot override
 - [x] Rule-only + template wording fallback (no API key required)
 - [x] Backend integration: `/api/agent/tick` + autonomous `agent_loop`
-- [x] 27 agent tests + 3 backend agent tests covering all agents, worked example, safety gate
+- [x] 29 agent tests + 3 backend agent tests covering all agents, worked example, safety gate, and LangGraph parity
 - [x] `AgentDecision` records logged and streamed to `/ws/dashboard`
-- [ ] LangGraph parity verification (test exists but skipped — needs langgraph installed)
+- [x] LangGraph parity verification (both tests pass with langgraph installed)
 
 ---
 

@@ -1,7 +1,7 @@
 """Decision Agent — best-alternative selection + synthesis of the 3 reports."""
 from agent.agents import crowd, decision, safety, train
 from agent.agents.decision import best_alternative, evaluate
-from agent.types import Policy
+from agent.models import Policy
 from tests.conftest import platform
 
 

@@ -150,7 +150,7 @@ Full planning suite lives in this repo:
 | 0 — Planning & Docs | Complete | 8 docs: PRD, TechSpec, AppFlow, Design, Schema, Plan, Tracker, Rules |
 | 1 — Backend Skeleton | Complete | FastAPI + WS + TTL expiry · 18 tests pass |
 | 2 — Computer Vision | Complete | YOLOv8 + synthetic fallback · 19 tests · real YOLO inference pending on-device run |
-| 3 — Agentic Core | Complete | Hierarchical multi-agent (Supervisor→Crowd∥Train∥Safety→Decision→Action) · 27 agent + 3 backend tests |
+| 3 — Agentic Core | Complete | Hierarchical multi-agent (Supervisor→Crowd∥Train∥Safety→Decision→Action) · 29 agent + 3 backend tests |
 | 4 — Frontend | Not started | React + Tailwind wa-modern |
 | 5 — Integration & Demo | Not started | Vercel + Railway deploy + privacy proof |
 

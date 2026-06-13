@@ -14,7 +14,7 @@
 | 0 | Planning & Docs | ✅ Done | 8/8 docs |
 | 1 | Foundation & Backend Skeleton | ✅ Done | 8/8 · 18 tests pass |
 | 2 | Computer Vision Density Pipeline | ✅ Done* | 6/6 · 19 tests · *real YOLO inference pending on-device run |
-| 3 | Agentic Decision Core (hierarchical multi-agent) | ✅ Done | 6/6 · 27 agent + 3 backend tests · LangGraph parity test skipped (langgraph not installed) |
+| 3 | Agentic Decision Core (hierarchical multi-agent) | ✅ Done | 6/6 · 29 agent + 3 backend tests · LangGraph parity verified |
 | 4 | Frontend: Dashboard, Displays & TTS | 🔲 Not started | 0/8 |
 | 5 | Integration, Privacy Proof & Demo | 🔲 Not started | 0/8 |
 
@@ -62,7 +62,7 @@
 
 ## Phase 3 — Agentic Decision Core (hierarchical multi-agent) ✅
 Architecture: Station Supervisor → (Crowd ∥ Train ∥ Safety) → Decision → Action.
-Tests: 27 passed, 1 skipped (langgraph not installed).
+Tests: 29 passed (including 2 LangGraph parity tests).
 
 | # | Task | Status | Owner | Notes |
 |---|------|--------|-------|-------|
