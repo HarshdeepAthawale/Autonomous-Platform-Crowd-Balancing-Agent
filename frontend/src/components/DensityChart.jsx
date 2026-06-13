@@ -7,7 +7,7 @@ const PLATFORM_COLORS = ['#2E6F95', '#D7483B', '#E8A33D', '#5C8A3A']
 
 function formatTime(ts) {
   if (!ts) return ''
-  const d = new Date(ts * 1000)
+  const d = new Date(ts)
   return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`
 }
 

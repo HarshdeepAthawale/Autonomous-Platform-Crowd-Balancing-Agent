@@ -26,7 +26,7 @@ export default function StatusBar({ connected, overrideMode }) {
     }}>
       {/* Logo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <span style={{ fontSize: 18 }}>🚉</span>
+        <span style={{ fontSize: 18 }}>|</span>
         <span style={{ color: '#1A1A1A', fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>
           Crowd-Balancing Agent
         </span>
@@ -57,7 +57,7 @@ export default function StatusBar({ connected, overrideMode }) {
             borderRadius: 9999,
             letterSpacing: '0.04em',
           }}>
-            ⚠ Override Mode
+            ! Override Mode
           </span>
         ) : (
           <span style={{

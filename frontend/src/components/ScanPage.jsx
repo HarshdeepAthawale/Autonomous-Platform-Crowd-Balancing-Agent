@@ -27,7 +27,7 @@ export default function ScanPage({ scanTicket, platforms }) {
       boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-        <span style={{ fontSize: 15 }}>🎫</span>
+        <span style={{ fontSize: 15 }}></span>
         <span style={{ color: '#1A1A1A', fontSize: 14, fontWeight: 600 }}>Ticket Scan</span>
         <span style={{ color: '#6B7280', fontSize: 12, marginLeft: 2 }}>/ Demo</span>
       </div>

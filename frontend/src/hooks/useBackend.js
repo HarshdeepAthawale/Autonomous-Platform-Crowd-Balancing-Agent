@@ -1,21 +1,25 @@
 import { useState, useCallback, useRef } from 'react'
 import { useWebSocket } from './useWebSocket'
 
-const WS_URL = `ws://${window.location.host}/ws/dashboard`
+const WS_URL = import.meta.env.VITE_WS_URL || `ws://${window.location.host}/ws/dashboard`
 const MAX_LOG   = 50
 const MAX_GRAPH = 120
 
 export function useBackend() {
   const [platforms, setPlatforms] = useState({})
   const [log, setLog]             = useState([])
-  const [graphSeries, setGraph]   = useState({})   // { platform_id: [{ts, density_pct}] }
+  const [graphSeries, setGraph]   = useState({})
   const [connected, setConnected] = useState(false)
   const wsRef = useRef(null)
 
   const handleMessage = useCallback((msg) => {
     setConnected(true)
-    if (msg.type === 'state_update') {
-      setPlatforms(prev => ({ ...prev, [msg.platform_id]: msg }))
+    if (msg.type === 'state_update' && Array.isArray(msg.platforms)) {
+      setPlatforms(prev => {
+        const next = { ...prev }
+        msg.platforms.forEach(p => { next[p.platform_id] = p })
+        return next
+      })
     } else if (msg.type === 'agent_action') {
       setLog(prev => [{ ...msg, id: Date.now() + Math.random() }, ...prev].slice(0, MAX_LOG))
     } else if (msg.type === 'graph_point') {

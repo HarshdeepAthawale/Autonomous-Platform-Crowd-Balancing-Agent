@@ -15,7 +15,7 @@ function detectChip(entry) {
 
 function formatTs(ts) {
   if (!ts) return ''
-  const d = new Date(ts * 1000)
+  const d = new Date(ts)
   return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`
 }
 
@@ -37,7 +37,7 @@ export default function AgentActionLog({ log, onOverride }) {
         justifyContent: 'space-between',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 16 }}>🤖</span>
+          <span style={{ fontSize: 16 }}></span>
           <span style={{ color: '#1A1A1A', fontSize: 14, fontWeight: 600 }}>Agent Action Log</span>
         </div>
         <span style={{

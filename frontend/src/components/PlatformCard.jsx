@@ -94,7 +94,7 @@ export default function PlatformCard({ state }) {
         {next_train ? (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 14 }}>🚆</span>
+              <span style={{ fontSize: 14 }}></span>
               <div>
                 <p style={{ color: '#6B7280', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 1px' }}>Next Train</p>
                 <p style={{ color: '#1A1A1A', fontSize: 13, fontWeight: 600, margin: 0 }}>{next_train.train_id}</p>

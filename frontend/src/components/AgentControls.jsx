@@ -23,7 +23,7 @@ export default function AgentControls({ triggerTick }) {
       boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-        <span style={{ fontSize: 15 }}>⚙️</span>
+        <span style={{ fontSize: 15 }}></span>
         <span style={{ color: '#1A1A1A', fontSize: 14, fontWeight: 600 }}>Agent Controls</span>
       </div>
 
