@@ -72,74 +72,86 @@ export default function SignageBoard() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: `linear-gradient(160deg, ${theme.bg} 0%, ${theme.soft} 100%)`,
-      color: '#FFFFFF',
+      color: '#211C15',
       display: 'flex', flexDirection: 'column',
-      transition: 'background 0.6s cubic-bezier(0.4,0,0.2,1)',
     }}>
       {/* Top bar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 40px', borderBottom: '1px solid rgba(255,255,255,0.25)' }}>
-        <span style={{ fontSize: 13, letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.9 }}>{t('signage.title')}</span>
-        <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontVariantNumeric: 'tabular-nums' }}>{hh}:{mm}</span>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 40px', borderBottom: '1px solid #E7DECE' }}>
+        <span style={{ fontSize: 13, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#6E6356' }}>{t('signage.title')}</span>
+        <span style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 20, fontVariantNumeric: 'tabular-nums' }}>{hh}:{mm}</span>
       </div>
 
-      {/* Center */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', textAlign: 'center' }}>
-        <p style={{ fontSize: 16, letterSpacing: '0.3em', textTransform: 'uppercase', opacity: 0.85, margin: '0 0 8px' }}>{t('signage.platform')}</p>
-        <p style={{ fontFamily: 'var(--font-display)', fontSize: 140, fontWeight: 900, lineHeight: 0.9, margin: '0 0 16px' }}>{pid}</p>
+      {/* Center — frosted card over the Japanese background */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
+        <div className="slide-in" style={{
+          textAlign: 'center',
+          background: 'rgba(253,251,246,0.80)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          border: `1px solid ${theme.bg}33`,
+          borderTop: `5px solid ${theme.bg}`,
+          borderRadius: 28,
+          boxShadow: '0 10px 44px rgba(80,55,20,0.16)',
+          padding: '48px 72px',
+          maxWidth: 860,
+          transition: 'border-color 0.6s ease',
+        }}>
+          <p style={{ fontSize: 16, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#6E6356', margin: '0 0 8px' }}>{t('signage.platform')}</p>
+          <p style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 140, fontWeight: 900, lineHeight: 0.9, margin: '0 0 16px' }}>{pid}</p>
 
-        <p style={{ fontFamily: 'var(--font-display)', fontSize: 64, fontWeight: 700, letterSpacing: '0.04em', margin: '0 0 28px' }}>
-          {t('zone.' + zoneKey.toLowerCase())}
-        </p>
+          <p style={{ fontFamily: 'var(--font-display)', color: theme.bg, fontSize: 64, fontWeight: 700, letterSpacing: '0.04em', margin: '0 0 28px' }}>
+            {t('zone.' + zoneKey.toLowerCase())}
+          </p>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 40 }}>
-          <div>
-            <p style={{ fontSize: 13, letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.8, margin: '0 0 4px' }}>{t('signage.crowd')}</p>
-            <p style={{ fontFamily: 'var(--font-display)', fontSize: 44, fontWeight: 700, margin: 0 }}>{Math.round(density)}<span style={{ fontSize: 24, opacity: 0.8 }}>%</span></p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 40 }}>
+            <div>
+              <p style={{ fontSize: 13, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#6E6356', margin: '0 0 4px' }}>{t('signage.crowd')}</p>
+              <p style={{ fontFamily: 'var(--font-display)', color: theme.bg, fontSize: 44, fontWeight: 700, margin: 0 }}>{Math.round(density)}<span style={{ fontSize: 24, opacity: 0.8 }}>%</span></p>
+            </div>
+            <div style={{ width: 1, height: 56, background: 'rgba(0,0,0,0.12)' }} />
+            <div>
+              <p style={{ fontSize: 13, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#6E6356', margin: '0 0 4px' }}>{t('signage.people')}</p>
+              <p style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 44, fontWeight: 700, margin: 0 }}>{count}</p>
+            </div>
+            {eta != null && (
+              <>
+                <div style={{ width: 1, height: 56, background: 'rgba(0,0,0,0.12)' }} />
+                <div>
+                  <p style={{ fontSize: 13, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#6E6356', margin: '0 0 4px' }}>{t('signage.train')}</p>
+                  <p style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 44, fontWeight: 700, margin: 0 }}>{Math.round(eta)}<span style={{ fontSize: 24, opacity: 0.7 }}>{t('signage.min')}</span></p>
+                </div>
+              </>
+            )}
           </div>
-          <div style={{ width: 1, height: 56, background: 'rgba(255,255,255,0.3)' }} />
-          <div>
-            <p style={{ fontSize: 13, letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.8, margin: '0 0 4px' }}>{t('signage.people')}</p>
-            <p style={{ fontFamily: 'var(--font-display)', fontSize: 44, fontWeight: 700, margin: 0 }}>{count}</p>
-          </div>
-          {eta != null && (
-            <>
-              <div style={{ width: 1, height: 56, background: 'rgba(255,255,255,0.3)' }} />
-              <div>
-                <p style={{ fontSize: 13, letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.8, margin: '0 0 4px' }}>{t('signage.train')}</p>
-                <p style={{ fontFamily: 'var(--font-display)', fontSize: 44, fontWeight: 700, margin: 0 }}>{Math.round(eta)}<span style={{ fontSize: 24, opacity: 0.8 }}>{t('signage.min')}</span></p>
-              </div>
-            </>
+
+          {/* HELD banner */}
+          {held && (
+            <div className="breathe" style={{ marginTop: 32, display: 'inline-flex', alignItems: 'center', gap: 10, background: `${theme.bg}1A`, color: theme.bg, border: `1px solid ${theme.bg}33`, padding: '12px 26px', borderRadius: 9999 }}>
+              <TrainIcon size={22} />
+              <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: '0.04em' }}>
+                {t('signage.held', { min: holdMin || 0 })}
+              </span>
+            </div>
+          )}
+
+          {/* Advisory / redirect suggestion */}
+          {advisory && !held && (
+            <p style={{ marginTop: 30, maxWidth: 720, fontSize: 22, lineHeight: 1.5, color: '#4A4035' }}>
+              {advisory}
+            </p>
+          )}
+          {advisory && held && advisory !== bannerEn && (
+            <p style={{ marginTop: 22, maxWidth: 720, fontSize: 20, lineHeight: 1.5, color: '#4A4035' }}>
+              {advisory}
+            </p>
           )}
         </div>
-
-        {/* HELD banner */}
-        {held && (
-          <div className="breathe" style={{ marginTop: 32, display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(0,0,0,0.18)', padding: '12px 26px', borderRadius: 9999 }}>
-            <TrainIcon size={22} />
-            <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: '0.04em' }}>
-              {t('signage.held', { min: holdMin || 0 })}
-            </span>
-          </div>
-        )}
-
-        {/* Advisory / redirect suggestion */}
-        {advisory && !held && (
-          <p style={{ marginTop: 30, maxWidth: 720, fontSize: 22, lineHeight: 1.5, opacity: 0.95 }}>
-            {advisory}
-          </p>
-        )}
-        {advisory && held && advisory !== bannerEn && (
-          <p style={{ marginTop: 22, maxWidth: 720, fontSize: 20, lineHeight: 1.5, opacity: 0.95 }}>
-            {advisory}
-          </p>
-        )}
       </div>
 
       {/* Footer */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 40px', borderTop: '1px solid rgba(255,255,255,0.25)', fontSize: 12, opacity: 0.85 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 40px', borderTop: '1px solid #E7DECE', fontSize: 12, color: '#A99E8C' }}>
         <span>{t('signage.footer')}</span>
-        <Link to="/" style={{ color: '#FFFFFF', opacity: 0.7, textDecoration: 'none' }}>← {t('nav.dashboard')}</Link>
+        <Link to="/" style={{ color: '#6E6356', textDecoration: 'none' }}>← {t('nav.dashboard')}</Link>
       </div>
     </div>
   )
