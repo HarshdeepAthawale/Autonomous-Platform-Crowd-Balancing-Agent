@@ -1,19 +1,23 @@
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { StationMark, SpeakerOnIcon, SpeakerOffIcon } from '../lib/icons'
+import LanguageSwitcher from './LanguageSwitcher'
+import { useT } from '../lib/i18n/context'
 
-const NAV = [
-  { to: '/',            label: 'Dashboard', end: true },
-  { to: '/display/gate', label: 'Gate' },
-  { to: '/display/A',    label: 'Board A' },
-  { to: '/display/B',    label: 'Board B' },
+const NAV_KEYS = [
+  { to: '/',            key: 'nav.dashboard', end: true },
+  { to: '/display/gate', key: 'nav.gate' },
+  { to: '/display/A',    key: 'nav.boardA' },
+  { to: '/display/B',    key: 'nav.boardB' },
 ]
 
 export default function StatusBar({ connected, overrideMode, voiceOn, onToggleVoice }) {
+  const t = useT()
+  const NAV = NAV_KEYS.map(item => ({ ...item, label: t(item.key) }))
   const [time, setTime] = useState(new Date())
   useEffect(() => {
-    const t = setInterval(() => setTime(new Date()), 1000)
-    return () => clearInterval(t)
+    const i = setInterval(() => setTime(new Date()), 1000)
+    return () => clearInterval(i)
   }, [])
 
   const hh = time.getHours().toString().padStart(2, '0')
@@ -43,7 +47,7 @@ export default function StatusBar({ connected, overrideMode, voiceOn, onToggleVo
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
           <span style={{ color: '#B8352C', display: 'flex' }}><StationMark size={22} /></span>
           <span style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 16, fontWeight: 700, letterSpacing: '0.01em', whiteSpace: 'nowrap' }}>
-            Crowd Balancing Agent
+            {t('app.title')}
           </span>
         </div>
 
@@ -68,7 +72,9 @@ export default function StatusBar({ connected, overrideMode, voiceOn, onToggleVo
         </nav>
 
         {/* Right cluster */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <LanguageSwitcher />
+
           {onToggleVoice && (
             <button
               onClick={onToggleVoice}
@@ -84,17 +90,17 @@ export default function StatusBar({ connected, overrideMode, voiceOn, onToggleVo
               }}
             >
               {voiceOn ? <SpeakerOnIcon size={14} /> : <SpeakerOffIcon size={14} />}
-              <span>{voiceOn ? 'Voice On' : 'Voice'}</span>
+              <span>{voiceOn ? t('status.voiceOn') : t('status.voice')}</span>
             </button>
           )}
 
           {overrideMode
-            ? <Pill bg="#FBF1DA" fg="#B45309" border="#E8C97A">⚠ Override</Pill>
-            : <Pill bg="#EDF3E4" fg="#5C8A3A" border="#BCD49E">● Autonomous</Pill>}
+            ? <Pill bg="#FBF1DA" fg="#B45309" border="#E8C97A">⚠ {t('status.override')}</Pill>
+            : <Pill bg="#EDF3E4" fg="#5C8A3A" border="#BCD49E">● {t('status.autonomous')}</Pill>}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: connected ? '#5C8A3A' : '#D6C9B4', display: 'inline-block' }} />
-            <span style={{ color: '#6E6356', fontSize: 12 }}>{connected ? 'Live' : '…'}</span>
+            <span style={{ color: '#6E6356', fontSize: 12 }}>{connected ? t('status.live') : '—'}</span>
           </div>
 
           <span style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 14, fontWeight: 500, fontVariantNumeric: 'tabular-nums', paddingRight: 4 }}>

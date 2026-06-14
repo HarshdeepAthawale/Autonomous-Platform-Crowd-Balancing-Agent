@@ -25,6 +25,10 @@ def run_tick(snapshot: list[dict], policy: Policy, draft=None) -> TickResult:
     d = decision.decide(snapshot, crowd_r, train_r, safety_r, policy)
     if d.act:
         record, side_effects = action.act(d, snapshot, draft)
+        # Always append a comprehensive status announcement so voice covers ALL
+        # crowded platforms (e.g. both A and B RED), not just the one acted on.
+        status_se = action.status_announce(snapshot, safety_r.failsafe)
+        side_effects.dashboard_msgs.extend(status_se.dashboard_msgs)
         return TickResult(True, d.reason, decision=record, side_effects=side_effects)
 
     # Produce a voice status announcement for every non-action tick so the

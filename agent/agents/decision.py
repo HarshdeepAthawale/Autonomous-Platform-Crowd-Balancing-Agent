@@ -46,16 +46,26 @@ def decide(snapshot: list[dict], crowd: CrowdReport, train: TrainReport,
     if not crowd.crowded_rising:
         return DecisionOutput(False, "all platforms within safe limits")
 
-    red_id = crowd.crowded_rising[0]
+    # Try each RED platform in turn — skip any whose train is already held
+    # so the agent can still act on a second crowded platform.
+    red_id = None
+    for pid in crowd.crowded_rising:
+        if train.holdable.get(pid, False):
+            red_id = pid
+            break
+
+    if red_id is None:
+        # All RED platforms already have their trains held (or no train).
+        reasons = []
+        for pid in crowd.crowded_rising:
+            rt = train.next_train.get(pid)
+            if rt and rt.get("held"):
+                reasons.append(f"already holding {rt['train_id']} for {pid}")
+            else:
+                reasons.append(f"{pid} RED but no train to hold")
+        return DecisionOutput(False, "; ".join(reasons))
+
     red_p = _by_id(snapshot, red_id)
-
-    # No-thrash: Train Agent says this platform's train is already held.
-    if not train.holdable.get(red_id, False):
-        rt = train.next_train.get(red_id)
-        if rt and rt.get("held"):
-            return DecisionOutput(False, f"already holding {rt['train_id']} for {red_id}")
-        return DecisionOutput(False, f"{red_id} RED but no train to hold — operator alert")
-
     red_train = train.next_train[red_id]
     target = best_alternative(red_p, snapshot, policy)
     minutes = policy.hold_max_min

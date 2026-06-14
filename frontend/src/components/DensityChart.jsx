@@ -2,6 +2,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ReferenceLine, ResponsiveContainer,
 } from 'recharts'
+import { useT } from '../lib/i18n/context'
 
 const PLATFORM_COLORS = ['#2E6F95', '#D7483B', '#E8A33D', '#5C8A3A']
 
@@ -48,6 +49,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 export default function DensityChart({ graphSeries }) {
+  const t = useT()
   const platformIds = Object.keys(graphSeries)
   const data = buildMergedSeries(graphSeries)
 
@@ -73,9 +75,9 @@ export default function DensityChart({ graphSeries }) {
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 18 }}>
         <div>
           <p style={{ color: '#A99E8C', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.14em', margin: '0 0 4px' }}>
-            Density Over Time
+            {t('density.title')}
           </p>
-          <p style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 17, fontWeight: 700, margin: 0 }}>Platform Comparison</p>
+          <p style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 17, fontWeight: 700, margin: 0 }}>{t('density.subtitle')}</p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -99,7 +101,7 @@ export default function DensityChart({ graphSeries }) {
 
       {data.length === 0 ? (
         <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <p style={{ color: '#A99E8C', fontSize: 13 }}>Waiting for data…</p>
+          <p style={{ color: '#A99E8C', fontSize: 13 }}>{t('density.waiting')}</p>
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={230}>
@@ -162,12 +164,12 @@ export default function DensityChart({ graphSeries }) {
       {trendNote && (
         <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid #EFE7D9', display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ color: '#211C15', fontSize: 13, fontWeight: 600 }}>
-            Platform {trendNote.pid} {trendNote.delta >= 0 ? 'up' : 'down'} {Math.abs(trendNote.delta)}% over window
+            {t('platform.label')} {trendNote.pid} {trendNote.delta >= 0 ? t('density.up') : t('density.down')} {Math.abs(trendNote.delta)}% {t('density.overWindow')}
           </span>
           <span style={{ color: trendNote.delta >= 0 ? '#D7483B' : '#5C8A3A', fontSize: 13 }}>
             {trendNote.delta >= 0 ? '↗' : '↘'}
           </span>
-          <span style={{ color: '#A99E8C', fontSize: 12, marginLeft: 'auto' }}>Live · updates each reading</span>
+          <span style={{ color: '#A99E8C', fontSize: 12, marginLeft: 'auto' }}>            {t('density.live')}</span>
         </div>
       )}
     </div>

@@ -1,12 +1,13 @@
 import { AgentIcon } from '../lib/icons'
+import { useT } from '../lib/i18n/context'
 
 const CHIP_STYLE = {
-  HOLD:               { color: '#B8352C', lightBg: '#F9EAE6', label: 'Hold' },
-  REDIRECT_SUGGESTION:{ color: '#2E6F95', lightBg: '#EAF1F6', label: 'Redirect' },
-  ANNOUNCE:           { color: '#5C8A3A', lightBg: '#EDF3E4', label: 'Announce' },
-  SIGNAGE:            { color: '#9A7B1F', lightBg: '#FBF1DA', label: 'Signage' },
-  OPERATOR_ALERT:     { color: '#B8352C', lightBg: '#F9EAE6', label: 'Alert' },
-  LOG:                { color: '#6E6356', lightBg: '#F4EEE3', label: 'Log' },
+  HOLD:               { color: '#B8352C', lightBg: '#F9EAE6', key: 'log.chip.hold' },
+  REDIRECT_SUGGESTION:{ color: '#2E6F95', lightBg: '#EAF1F6', key: 'log.chip.redirect' },
+  ANNOUNCE:           { color: '#5C8A3A', lightBg: '#EDF3E4', key: 'log.chip.announce' },
+  SIGNAGE:            { color: '#9A7B1F', lightBg: '#FBF1DA', key: 'log.chip.signage' },
+  OPERATOR_ALERT:     { color: '#B8352C', lightBg: '#F9EAE6', key: 'log.chip.alert' },
+  LOG:                { color: '#6E6356', lightBg: '#F4EEE3', key: 'log.chip.log' },
 }
 
 // Order chips by importance and keep it readable
@@ -32,6 +33,7 @@ function formatTs(ts) {
 }
 
 export default function AgentActionLog({ log, onOverride }) {
+  const t = useT()
   return (
     <div style={{
       backgroundColor: '#FDFBF6',
@@ -48,13 +50,13 @@ export default function AgentActionLog({ log, onOverride }) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
           <span style={{ color: '#6E6356', display: 'flex' }}><AgentIcon size={17} /></span>
-          <span style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 16, fontWeight: 700 }}>Agent Action Log</span>
+          <span style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 16, fontWeight: 700 }}>{t('log.title')}</span>
         </div>
         <span style={{
           backgroundColor: '#F4EEE3', color: '#6E6356',
           fontSize: 11, padding: '3px 9px', borderRadius: 9999, fontWeight: 500,
         }}>
-          {log.length} event{log.length !== 1 ? 's' : ''}
+          {t('log.event', { count: log.length })}
         </span>
       </div>
 
@@ -62,8 +64,8 @@ export default function AgentActionLog({ log, onOverride }) {
       <div style={{ maxHeight: 380, overflowY: 'auto' }}>
         {log.length === 0 ? (
           <div style={{ padding: '44px 24px', textAlign: 'center' }}>
-            <p style={{ color: '#A99E8C', fontSize: 13, margin: '0 0 4px' }}>Waiting for agent activity…</p>
-            <p style={{ color: '#C2B7A4', fontSize: 12, margin: 0 }}>The agent acts when a platform reaches RED.</p>
+            <p style={{ color: '#A99E8C', fontSize: 13, margin: '0 0 4px' }}>{t('log.waiting')}</p>
+            <p style={{ color: '#C2B7A4', fontSize: 12, margin: 0 }}>{t('log.agentActs')}</p>
           </div>
         ) : (
           log.map((entry) => {
@@ -94,7 +96,7 @@ export default function AgentActionLog({ log, onOverride }) {
                         borderRadius: 9999, letterSpacing: '0.06em',
                         display: 'inline-block', textTransform: 'uppercase',
                       }}>
-                        {chip.label}
+                        {t(chip.key)}
                       </span>
                     ))}
                   </div>
@@ -109,7 +111,7 @@ export default function AgentActionLog({ log, onOverride }) {
                     color: '#6E6356', fontSize: 11, padding: '4px 12px',
                     borderRadius: 9999, whiteSpace: 'nowrap', flexShrink: 0, fontWeight: 600,
                   }}>
-                    Overridden
+                    {t('log.overridden')}
                   </span>
                 ) : onOverride && entry.id && (
                   <button
@@ -123,7 +125,7 @@ export default function AgentActionLog({ log, onOverride }) {
                     onMouseOver={e => { e.currentTarget.style.borderColor = '#D7483B'; e.currentTarget.style.color = '#D7483B' }}
                     onMouseOut={e =>  { e.currentTarget.style.borderColor = '#E7DECE'; e.currentTarget.style.color = '#6E6356' }}
                   >
-                    Override
+                    {t('log.override')}
                   </button>
                 )}
               </div>

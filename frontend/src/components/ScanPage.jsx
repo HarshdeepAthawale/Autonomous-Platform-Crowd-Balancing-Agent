@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { TicketIcon } from '../lib/icons'
+import { useT } from '../lib/i18n/context'
 
 const PLATFORMS = ['A', 'B']
 const TRAINS    = { A: '12045', B: '12046' }
@@ -12,6 +13,7 @@ const BTN_STYLE = {
 }
 
 export default function ScanPage({ scanTicket, pushDensity }) {
+  const t = useT()
   const [counts, setCounts]     = useState({ A: START, B: START })
   const [feedback, setFeedback] = useState(null)
 
@@ -42,14 +44,14 @@ export default function ScanPage({ scanTicket, pushDensity }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ color: '#6E6356', display: 'flex' }}><TicketIcon size={16} /></span>
-          <span style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 15, fontWeight: 700 }}>Ticket Scan</span>
-          <span style={{ color: '#A99E8C', fontSize: 12, marginLeft: 2 }}>/ Demo</span>
+          <span style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 15, fontWeight: 700 }}>{t('scan.title')}</span>
+          <span style={{ color: '#A99E8C', fontSize: 12, marginLeft: 2 }}>{t('scan.demo')}</span>
         </div>
         <button
           onClick={reset}
           style={{ border: '1px solid #E7DECE', background: 'transparent', color: '#6E6356', fontSize: 11, padding: '4px 10px', borderRadius: 9999, cursor: 'pointer' }}
         >
-          Reset
+          {t('scan.reset')}
         </button>
       </div>
 
@@ -73,13 +75,13 @@ export default function ScanPage({ scanTicket, pushDensity }) {
               }}
             >
               <p style={{ color: '#6E6356', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 4px' }}>
-                Scan →
+                {t('scanA.label')}
               </p>
               <p style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 19, fontWeight: 700, margin: '0 0 6px' }}>
-                Platform {pid}
+                {t('scan.platform', { id: pid })}
               </p>
               <p style={{ color: s.accent, fontSize: 12, fontWeight: 600, margin: 0 }}>
-                ≈{counts[pid] ?? START} people · {pct}%
+                {t('scan.people', { count: counts[pid] ?? START, pct })}
               </p>
             </button>
           )
@@ -87,7 +89,7 @@ export default function ScanPage({ scanTicket, pushDensity }) {
       </div>
 
       <p style={{ color: '#C2B7A4', fontSize: 11, textAlign: 'center', marginTop: 14, marginBottom: 0 }}>
-        Each scan +{STEP} · drives gauge, graph & agent · no PII
+        {t('scan.footer', { step: STEP })}
       </p>
     </div>
   )

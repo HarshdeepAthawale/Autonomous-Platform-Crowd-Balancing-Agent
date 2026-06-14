@@ -1,6 +1,7 @@
 import { ZONE_COLOR, classifyZone } from '../lib/zone'
 import DensityGauge from './DensityGauge'
 import { TrainIcon, PeopleIcon } from '../lib/icons'
+import { useT } from '../lib/i18n/context'
 
 function StatRow({ icon, label, value, accent }) {
   return (
@@ -19,6 +20,7 @@ function StatRow({ icon, label, value, accent }) {
 }
 
 export default function PlatformCard({ state }) {
+  const t = useT()
   if (!state) return <SkeletonCard />
 
   const { platform_id, density_pct = 0, count = 0, zone, trend, next_train } = state
@@ -43,7 +45,7 @@ export default function PlatformCard({ state }) {
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
             <span style={{ color: '#A99E8C', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
-              Platform
+              {t('platform.label')}
             </span>
             <span style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 30, fontWeight: 700, lineHeight: 1 }}>
               {platform_id}
@@ -60,26 +62,26 @@ export default function PlatformCard({ state }) {
             letterSpacing: '0.06em',
             border: `1px solid ${zc.bg}25`,
           }}>
-            {zc.shape} {zc.label}
+            {zc.shape} {t('zone.' + zoneKey.toLowerCase())}
           </span>
         </div>
 
         {/* Body: gauge + stats */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 22 }}>
-          <DensityGauge densityPct={density_pct} zoneColor={zc.bg} label={zc.label} trend={trend} />
+          <DensityGauge densityPct={density_pct} zoneColor={zc.bg} label={t('zone.' + zoneKey.toLowerCase())} trend={trend} />
 
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <StatRow icon={<PeopleIcon size={14} />} label="People" value={count} />
+            <StatRow icon={<PeopleIcon size={14} />} label={t('platform.people')} value={count} />
             <div style={{ height: 1, backgroundColor: '#EFE7D9' }} />
             {next_train ? (
               <>
-                <StatRow icon={<TrainIcon size={14} />} label="Next Train" value={next_train.train_id} />
+                <StatRow icon={<TrainIcon size={14} />} label={t('platform.nextTrain')} value={next_train.train_id} />
                 <div style={{ height: 1, backgroundColor: '#EFE7D9' }} />
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#6E6356', fontSize: 12, letterSpacing: '0.04em' }}>ETA</span>
+                    <span style={{ color: '#6E6356', fontSize: 12, letterSpacing: '0.04em' }}>{t('platform.eta')}</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 17, fontWeight: 500 }}>
-                      {next_train.eta_min} min
+                      {next_train.eta_min} {t('platform.min')}
                     </span>
                     {isHeld && (
                       <span className="breathe" style={{
@@ -87,14 +89,14 @@ export default function PlatformCard({ state }) {
                         fontSize: 9, fontWeight: 700, padding: '3px 8px',
                         borderRadius: 9999, letterSpacing: '0.1em',
                       }}>
-                        HELD
+                        {t('platform.held')}
                       </span>
                     )}
                   </div>
                 </div>
               </>
             ) : (
-              <span style={{ color: '#A99E8C', fontSize: 13 }}>No upcoming train</span>
+              <span style={{ color: '#A99E8C', fontSize: 13 }}>{t('platform.noTrain')}</span>
             )}
           </div>
         </div>

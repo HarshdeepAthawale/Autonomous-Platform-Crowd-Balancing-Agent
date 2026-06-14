@@ -8,6 +8,7 @@ import AgentControls  from '../components/AgentControls'
 import { useBackend }   from '../hooks/useBackend'
 import { useAnnouncer } from '../hooks/useAnnouncer'
 import { classifyZone, ZONE_COLOR } from '../lib/zone'
+import { useT } from '../lib/i18n/context'
 
 function Seigaiha() {
   return (
@@ -41,6 +42,7 @@ function ZoneTile({ count, color, label }) {
 }
 
 function HeroStrip({ platforms }) {
+  const t = useT()
   const states   = Object.values(platforms)
   const total    = states.length
   const redCount = states.filter(s => classifyZone(s.density_pct) === 'RED').length
@@ -52,17 +54,17 @@ function HeroStrip({ platforms }) {
       <Seigaiha />
       <div style={{ position: 'relative', zIndex: 1, padding: '32px 32px 30px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
         <div>
-          <p style={{ color: '#6E6356', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.18em', margin: '0 0 8px' }}>Station Overview</p>
-          <h1 style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 38, fontWeight: 900, margin: '0 0 6px', letterSpacing: '0.01em', lineHeight: 1.05 }}>Platform Status</h1>
+          <p style={{ color: '#6E6356', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.18em', margin: '0 0 8px' }}>{t('hero.stationOverview')}</p>
+          <h1 style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 38, fontWeight: 900, margin: '0 0 6px', letterSpacing: '0.01em', lineHeight: 1.05 }}>{t('hero.platformStatus')}</h1>
           <p style={{ color: '#6E6356', fontSize: 13, margin: 0 }}>
-            {total > 0 ? `${total} platform${total !== 1 ? 's' : ''} monitored · autonomous balancing active` : 'Waiting for platform data…'}
+            {total > 0 ? t('hero.monitored', { count: total }) : t('hero.waiting')}
           </p>
         </div>
         {total > 0 && (
           <div style={{ display: 'flex', gap: 10 }}>
-            {redCount > 0 && <ZoneTile count={redCount} color={ZONE_COLOR.RED.bg}    label="Crowded" />}
-            {yelCount > 0 && <ZoneTile count={yelCount} color={ZONE_COLOR.YELLOW.bg} label="Filling" />}
-            {grnCount > 0 && <ZoneTile count={grnCount} color={ZONE_COLOR.GREEN.bg}  label="Available" />}
+            {redCount > 0 && <ZoneTile count={redCount} color={ZONE_COLOR.RED.bg}    label={t('hero.crowded')} />}
+            {yelCount > 0 && <ZoneTile count={yelCount} color={ZONE_COLOR.YELLOW.bg} label={t('hero.filling')} />}
+            {grnCount > 0 && <ZoneTile count={grnCount} color={ZONE_COLOR.GREEN.bg}  label={t('hero.available')} />}
           </div>
         )}
       </div>
@@ -71,6 +73,7 @@ function HeroStrip({ platforms }) {
 }
 
 export default function Dashboard() {
+  const t = useT()
   const { platforms, log, graphSeries, connected, lastAnnouncement, scanTicket, pushDensity, triggerTick, overrideAction } = useBackend()
   const [voiceOn, setVoiceOn] = useState(false)
 
@@ -105,7 +108,7 @@ export default function Dashboard() {
         </div>
 
         <p style={{ color: '#B9AE9B', fontSize: 11, textAlign: 'center', marginTop: 44, marginBottom: 0 }}>
-          Privacy: platform ID + train ID only · no PII · no camera frames stored · data expires ≤1h after train departure
+          {t('privacy.footer')}
         </p>
       </main>
     </>

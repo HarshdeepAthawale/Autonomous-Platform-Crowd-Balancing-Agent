@@ -4,6 +4,7 @@ import { useWebSocket } from '../hooks/useWebSocket'
 import { useDisplay } from '../hooks/useDisplay'
 import { classifyZone } from '../lib/zone'
 import { TrainIcon } from '../lib/icons'
+import { useT } from '../lib/i18n/context'
 
 function useClock() {
   const [t, setT] = useState(new Date())
@@ -32,6 +33,7 @@ const ZONE_THEME = {
 }
 
 export default function SignageBoard() {
+  const t = useT()
   const { platformId } = useParams()
   const pid = (platformId || '').toUpperCase()
   const state = usePlatformState(pid)
@@ -63,35 +65,35 @@ export default function SignageBoard() {
     }}>
       {/* Top bar */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 40px', borderBottom: '1px solid rgba(255,255,255,0.25)' }}>
-        <span style={{ fontSize: 13, letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.9 }}>Platform Information</span>
+        <span style={{ fontSize: 13, letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.9 }}>{t('signage.title')}</span>
         <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontVariantNumeric: 'tabular-nums' }}>{hh}:{mm}</span>
       </div>
 
       {/* Center */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', textAlign: 'center' }}>
-        <p style={{ fontSize: 16, letterSpacing: '0.3em', textTransform: 'uppercase', opacity: 0.85, margin: '0 0 8px' }}>Platform</p>
+        <p style={{ fontSize: 16, letterSpacing: '0.3em', textTransform: 'uppercase', opacity: 0.85, margin: '0 0 8px' }}>{t('signage.platform')}</p>
         <p style={{ fontFamily: 'var(--font-display)', fontSize: 140, fontWeight: 900, lineHeight: 0.9, margin: '0 0 16px' }}>{pid}</p>
 
         <p style={{ fontFamily: 'var(--font-display)', fontSize: 64, fontWeight: 700, letterSpacing: '0.04em', margin: '0 0 28px' }}>
-          {theme.word}
+          {t('zone.' + zoneKey.toLowerCase())}
         </p>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 40 }}>
           <div>
-            <p style={{ fontSize: 13, letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.8, margin: '0 0 4px' }}>Crowd</p>
+            <p style={{ fontSize: 13, letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.8, margin: '0 0 4px' }}>{t('signage.crowd')}</p>
             <p style={{ fontFamily: 'var(--font-display)', fontSize: 44, fontWeight: 700, margin: 0 }}>{Math.round(density)}<span style={{ fontSize: 24, opacity: 0.8 }}>%</span></p>
           </div>
           <div style={{ width: 1, height: 56, background: 'rgba(255,255,255,0.3)' }} />
           <div>
-            <p style={{ fontSize: 13, letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.8, margin: '0 0 4px' }}>People</p>
+            <p style={{ fontSize: 13, letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.8, margin: '0 0 4px' }}>{t('signage.people')}</p>
             <p style={{ fontFamily: 'var(--font-display)', fontSize: 44, fontWeight: 700, margin: 0 }}>{count}</p>
           </div>
           {eta != null && (
             <>
               <div style={{ width: 1, height: 56, background: 'rgba(255,255,255,0.3)' }} />
               <div>
-                <p style={{ fontSize: 13, letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.8, margin: '0 0 4px' }}>Train</p>
-                <p style={{ fontFamily: 'var(--font-display)', fontSize: 44, fontWeight: 700, margin: 0 }}>{Math.round(eta)}<span style={{ fontSize: 24, opacity: 0.8 }}> min</span></p>
+                <p style={{ fontSize: 13, letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.8, margin: '0 0 4px' }}>{t('signage.train')}</p>
+                <p style={{ fontFamily: 'var(--font-display)', fontSize: 44, fontWeight: 700, margin: 0 }}>{Math.round(eta)}<span style={{ fontSize: 24, opacity: 0.8 }}>{t('signage.min')}</span></p>
               </div>
             </>
           )}
@@ -102,7 +104,7 @@ export default function SignageBoard() {
           <div className="breathe" style={{ marginTop: 32, display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(0,0,0,0.18)', padding: '12px 26px', borderRadius: 9999 }}>
             <TrainIcon size={22} />
             <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: '0.04em' }}>
-              TRAIN HELD{holdMin ? ` +${holdMin} MIN` : ''} — FOR YOUR SAFETY
+              {t('signage.held', { min: holdMin || 0 })}
             </span>
           </div>
         )}
@@ -122,8 +124,8 @@ export default function SignageBoard() {
 
       {/* Footer */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 40px', borderTop: '1px solid rgba(255,255,255,0.25)', fontSize: 12, opacity: 0.85 }}>
-        <span>Autonomous Platform Crowd Balancing Agent</span>
-        <Link to="/" style={{ color: '#FFFFFF', opacity: 0.7, textDecoration: 'none' }}>← Dashboard</Link>
+        <span>{t('signage.footer')}</span>
+        <Link to="/" style={{ color: '#FFFFFF', opacity: 0.7, textDecoration: 'none' }}>← {t('nav.dashboard')}</Link>
       </div>
     </div>
   )

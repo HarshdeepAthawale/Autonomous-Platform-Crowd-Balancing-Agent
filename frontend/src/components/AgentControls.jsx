@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { GearIcon, PlayIcon } from '../lib/icons'
+import { useT } from '../lib/i18n/context'
 
 export default function AgentControls({ triggerTick }) {
+  const t = useT()
   const [loading, setLoading] = useState(false)
   const [last, setLast]       = useState(null)
 
@@ -25,7 +27,7 @@ export default function AgentControls({ triggerTick }) {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
         <span style={{ color: '#6E6356', display: 'flex' }}><GearIcon size={16} /></span>
-        <span style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 15, fontWeight: 700 }}>Agent Controls</span>
+          <span style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 15, fontWeight: 700 }}>{t('controls.title')}</span>
       </div>
 
       <button
@@ -50,30 +52,30 @@ export default function AgentControls({ triggerTick }) {
         }}
       >
         {!loading && <PlayIcon size={12} />}
-        <span>{loading ? 'Running tick…' : 'Trigger Agent Tick'}</span>
+        <span>{loading ? t('controls.running') : t('controls.trigger')}</span>
       </button>
 
       {last && (
         <div style={{ marginTop: 12, padding: '10px 12px', backgroundColor: '#F4EEE3', border: '1px solid #E7DECE', borderRadius: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
-            <span style={{ color: '#6E6356', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Last result</span>
+            <span style={{ color: '#6E6356', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{t('controls.lastResult')}</span>
             <span style={{
               fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 9999, letterSpacing: '0.05em', textTransform: 'uppercase',
               backgroundColor: last.action ? '#EDF3E4' : '#F4EEE3',
               color: last.action ? '#5C8A3A' : '#A99E8C',
               border: `1px solid ${last.action ? '#BCD49E' : '#E7DECE'}`,
             }}>
-              {last.action ? 'Acted' : 'No action'}
+              {last.action ? t('agents.acted') : t('agents.noAction')}
             </span>
           </div>
           <p style={{ color: '#211C15', fontSize: 12, margin: 0, lineHeight: 1.5 }}>
-            {last.decision?.reasoning || last.reason || 'Tick complete.'}
+            {last.decision?.reasoning || last.reason || t('controls.tickComplete')}
           </p>
         </div>
       )}
 
       <p style={{ color: '#C2B7A4', fontSize: 11, marginTop: 12, marginBottom: 0 }}>
-        Auto-runs every 20 s in background
+        {t('controls.autoRuns')}
       </p>
     </div>
   )
