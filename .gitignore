@@ -32,6 +32,9 @@ build/
 *.png
 frames/
 recordings/
+# …but UI assets bundled with the frontend ARE committed
+!frontend/public/*.png
+!frontend/public/*.jpg
 
 # Data store / logs (privacy: no captured data in VCS)
 *.db
