@@ -71,7 +71,7 @@ function HeroStrip({ platforms }) {
 }
 
 export default function Dashboard() {
-  const { platforms, log, graphSeries, connected, lastAnnouncement, scanTicket, triggerTick, overrideAction } = useBackend()
+  const { platforms, log, graphSeries, connected, lastAnnouncement, scanTicket, pushDensity, triggerTick, overrideAction } = useBackend()
   const [voiceOn, setVoiceOn] = useState(false)
 
   useAnnouncer(lastAnnouncement, voiceOn)
@@ -99,7 +99,7 @@ export default function Dashboard() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 18, alignItems: 'start' }}>
           <AgentActionLog log={log} onOverride={overrideAction} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <ScanPage scanTicket={scanTicket} platforms={platforms} />
+            <ScanPage scanTicket={scanTicket} pushDensity={pushDensity} />
             <AgentControls triggerTick={triggerTick} />
           </div>
         </div>

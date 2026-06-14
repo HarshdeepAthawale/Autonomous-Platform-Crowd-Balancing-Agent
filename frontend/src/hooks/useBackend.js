@@ -59,6 +59,16 @@ export function useBackend() {
     })
   }, [])
 
+  // Demo: drive synthetic CV density (camera-less path) so the gauge + graph
+  // + agent all respond to the scan buttons (AppFlow §9).
+  const pushDensity = useCallback(async (platform_id, count) => {
+    await fetch('/api/density', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ platform_id, count }),
+    })
+  }, [])
+
   const triggerTick = useCallback(async () => {
     const res = await fetch('/api/agent/tick', { method: 'POST' })
     return res.json()
@@ -72,5 +82,5 @@ export function useBackend() {
     })
   }, [])
 
-  return { platforms, log, graphSeries, connected, lastAnnouncement, scanTicket, triggerTick, overrideAction }
+  return { platforms, log, graphSeries, connected, lastAnnouncement, scanTicket, pushDensity, triggerTick, overrideAction }
 }
