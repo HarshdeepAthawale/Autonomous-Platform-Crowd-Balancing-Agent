@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { speakGemini } from '../lib/tts'
+import { speakNatural } from '../lib/tts'
 
 // Language → BCP-47 tag used to select the best SpeechSynthesis voice.
 const VOICE_LANG = {
@@ -52,7 +52,7 @@ function speakBrowser(text, lang) {
 // Prefers natural Gemini audio; falls back to the browser engine on any failure.
 export function speakText(text, lang) {
   if (!text) return
-  speakGemini(text, lang).catch(() => speakBrowser(text, lang))
+  speakNatural(text, lang).catch(() => speakBrowser(text, lang))
 }
 
 /**
@@ -78,6 +78,6 @@ export function useAnnouncer(payload, lang, enabled) {
     if (!text) return
 
     // Natural Gemini audio first; browser engine only if that fails.
-    speakGemini(text, lang).catch(() => speakBrowser(text, lang))
+    speakNatural(text, lang).catch(() => speakBrowser(text, lang))
   }, [payload, lang, enabled])
 }
