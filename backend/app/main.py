@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .agent_runner import agent_loop
 from .config import settings
 from .deps import store
-from .routers import agent, density, override, scan, scheduling, state
+from .routers import agent, debug, density, override, scan, scheduling, state
 from .services import state_payload
 from .ws import manager
 
@@ -46,7 +46,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for r in (scan, density, state, scheduling, override, agent):
+for r in (scan, density, state, scheduling, override, agent, debug):
     app.include_router(r.router)
 
 
