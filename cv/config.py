@@ -27,7 +27,22 @@ class CVSettings(BaseSettings):
     # Must match backend settings.platform_capacity for consistent density %
     platform_capacity: dict[str, int] = {"A": 200, "B": 200}
 
-    # Primary demo path: deterministic, no camera required
+    # Run mode:
+    #   "synthetic" — deterministic worked-example feed, no camera (default demo path)
+    #   "real"      — every platform from its configured `sources` (webcams / clips)
+    #   "hybrid"    — webcam_platform from a real webcam (YOLO), the rest synthetic
+    cv_mode: str = "synthetic"
+
+    # Hybrid: which platform is driven by the real webcam, its source + demo capacity.
+    # Small capacity so a handful of people on camera fills the gauge (Green→Red).
+    webcam_platform: str = "A"
+    webcam_source: str = "0"          # /dev/video0 (or a clip path)
+    # Small so a few people on camera fill the gauge: 1→25%, 3→75% (YELLOW),
+    # 4→RED (agent acts). Solo demo? set WEBCAM_CAPACITY=1 or 2.
+    webcam_capacity: int = 4
+
+    # Primary demo path: deterministic, no camera required.
+    # Back-compat: USE_SYNTHETIC=false still forces the real path (see run.py).
     use_synthetic: bool = True
 
     # Print rolling frame->detect->publish latency (for the on-device latency proof).

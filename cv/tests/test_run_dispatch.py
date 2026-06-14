@@ -18,3 +18,19 @@ def test_run_selects_real_worker(monkeypatch):
     monkeypatch.setattr("cv.worker.run_workers", lambda: called.setdefault("real", True))
     run.main()
     assert called == {"real": True}
+
+
+def test_run_selects_hybrid(monkeypatch):
+    called = {}
+    monkeypatch.setattr(settings, "cv_mode", "hybrid")
+    monkeypatch.setattr("cv.hybrid.run_hybrid", lambda: called.setdefault("hybrid", True))
+    run.main()
+    assert called == {"hybrid": True}
+
+
+def test_run_selects_real_via_mode(monkeypatch):
+    called = {}
+    monkeypatch.setattr(settings, "cv_mode", "real")
+    monkeypatch.setattr("cv.worker.run_workers", lambda: called.setdefault("real", True))
+    run.main()
+    assert called == {"real": True}

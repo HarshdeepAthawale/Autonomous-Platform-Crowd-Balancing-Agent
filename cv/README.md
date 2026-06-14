@@ -3,22 +3,33 @@
 Per-platform person counting that feeds **density %** into the backend — and never
 stores a frame. See [../plan/Phase2-Computer-Vision.md](../plan/Phase2-Computer-Vision.md).
 
-Two paths:
-- **Synthetic (default, primary demo path)** — deterministic worked-example arc, no
+Three run modes (`CV_MODE`):
+- **`synthetic`** (default, primary demo path) — deterministic worked-example arc, no
   camera or YOLO needed. Runs on any laptop.
-- **Real YOLOv8** — `ultralytics` + `opencv` person detection from webcams/clips.
+- **`hybrid`** — Platform A counts **real people from the webcam** (YOLOv8), the other
+  platform(s) stay synthetic GREEN so the agent can still redirect A→B. Best live demo.
+- **`real`** — every platform from its configured `sources` (webcams / clips).
 
 ## Run
+Run `python -m cv.run` **from the project root** (so the `cv` package resolves):
 ```bash
 # 1) start the backend first (see ../backend/README.md)
 cd backend && uvicorn app.main:app    # http://127.0.0.1:8000
 
-# 2a) synthetic feed (default — no camera)
-cd cv && python -m cv.run
+# 2) from the PROJECT ROOT, with the cv venv active:
+source cv/.venv/bin/activate
 
-# 2b) real YOLOv8 from configured sources
-USE_SYNTHETIC=false python -m cv.run
+# 2a) synthetic feed (default — no camera)
+python -m cv.run
+
+# 2b) HYBRID: real webcam -> Platform A (YOLO), others synthetic
+CV_MODE=hybrid LOG_LATENCY=true python -m cv.run
+
+# 2c) real YOLOv8 for every platform (USE_SYNTHETIC=false is a back-compat alias)
+CV_MODE=real python -m cv.run
 ```
+> First real/hybrid run auto-downloads `yolov8n.pt` (~6 MB). The webcam platform uses a
+> small `webcam_capacity` (default 4) so a handful of people fills the gauge Green→Red.
 
 ## Test
 ```bash
@@ -29,7 +40,11 @@ cd cv && pytest -q        # density math, synthetic arc, payload privacy, no-fra
 | Key | Default | Purpose |
 |-----|---------|---------|
 | `BACKEND_URL` | `http://127.0.0.1:8000` | where to POST density |
-| `USE_SYNTHETIC` | `true` | synthetic vs real YOLOv8 |
+| `CV_MODE` | `synthetic` | `synthetic` / `hybrid` / `real` |
+| `WEBCAM_PLATFORM` | `A` | which platform the webcam drives (hybrid) |
+| `WEBCAM_SOURCE` | `0` | webcam index / clip path for the real platform |
+| `WEBCAM_CAPACITY` | `12` | small capacity so a few people fill the gauge |
+| `USE_SYNTHETIC` | `true` | back-compat: `false` ⇒ `CV_MODE=real` |
 | `MODEL_PATH` | `yolov8n.pt` | YOLOv8 weights (kept out of git) |
 | `FRAME_STRIDE` | `3` | process every Nth frame |
 | `SMOOTHING_WINDOW` | `10` | rolling-average frames |
@@ -49,7 +64,8 @@ cv/
 ├── worker.py      real CV loop: frame → detect → smooth → publish
 ├── density.py     count → density %, rolling average, trend
 ├── synthetic.py   deterministic worked-example feed (default demo path)
+├── hybrid.py      webcam -> one platform (YOLO) + synthetic for the rest
 ├── publisher.py   POST /api/density
-├── run.py         entrypoint (picks synthetic vs real)
+├── run.py         entrypoint (dispatches on CV_MODE)
 └── config.py
 ```

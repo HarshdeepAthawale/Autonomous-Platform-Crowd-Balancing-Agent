@@ -11,9 +11,8 @@ FORBIDDEN = ("imwrite(", "VideoWriter(", "imencode(")
 
 def test_no_frame_writing_calls_in_cv_source():
     offenders = []
-    for py in CV_DIR.rglob("*.py"):
-        if "tests" in py.parts:
-            continue
+    # Only OUR modules (top-level cv/*.py) — not tests, not installed libs in .venv.
+    for py in CV_DIR.glob("*.py"):
         text = py.read_text()
         for token in FORBIDDEN:
             if token in text:

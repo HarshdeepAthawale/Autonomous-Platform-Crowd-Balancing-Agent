@@ -32,18 +32,30 @@ Start the backend first (separate terminal):
 cd backend && source .venv/bin/activate && uvicorn app.main:app --port 8000
 ```
 
-Then the real CV worker. Pick a source:
-
-**A) Webcam** (default sources `{"A":"0","B":"1"}` = camera indexes):
+Then the CV feed — run `python -m cv.run` **from the project root** (so the `cv` package
+resolves), with the cv venv active:
 ```bash
-cd cv && source .venv/bin/activate
-USE_SYNTHETIC=false LOG_LATENCY=true python -m cv.run
+source cv/.venv/bin/activate
 ```
 
-**B) Sample clip(s)** — point a platform at a video file instead of a camera index.
+**A) HYBRID (recommended for the demo)** — webcam drives Platform A (real YOLO), Platform B
+stays synthetic GREEN so the agent can redirect A→B:
+```bash
+CV_MODE=hybrid LOG_LATENCY=true python -m cv.run
+```
+Stand in front of the camera → A's gauge climbs Green→Red (small `WEBCAM_CAPACITY`, default
+4: 1 person 25%, 3 → 75% YELLOW, 4 → RED) → the agent holds A's train and suggests B. Solo
+demo? set `WEBCAM_CAPACITY=1`. Tune `WEBCAM_SOURCE` for the camera index.
+
+**B) Webcam for every platform** (`{"A":"0","B":"1"}` = camera indexes):
+```bash
+CV_MODE=real LOG_LATENCY=true python -m cv.run
+```
+
+**C) Sample clip(s)** — point a platform at a video file instead of a camera index.
 `SOURCES` is JSON, `platform_id -> webcam index or clip path`:
 ```bash
-USE_SYNTHETIC=false LOG_LATENCY=true \
+CV_MODE=real LOG_LATENCY=true \
   SOURCES='{"A":"/path/to/people_clip.mp4","B":"/path/to/empty_platform.mp4"}' \
   python -m cv.run
 ```
