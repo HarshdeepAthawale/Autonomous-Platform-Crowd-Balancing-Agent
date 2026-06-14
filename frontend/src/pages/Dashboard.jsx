@@ -48,9 +48,9 @@ function HeroStrip({ platforms }) {
   const grnCount = states.filter(s => classifyZone(s.density_pct) === 'GREEN').length
 
   return (
-    <div style={{ position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, #F7F1E7 0%, #ECF1F6 55%, #DEEAF4 100%)', borderBottom: '1px solid #E7DECE' }}>
+    <div style={{ position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, #F7F1E7 0%, #ECF1F6 55%, #DEEAF4 100%)', border: '1px solid #E7DECE', borderRadius: 18, marginBottom: 18, boxShadow: '0 1px 2px rgba(80,55,20,0.04), 0 6px 20px rgba(80,55,20,0.05)' }}>
       <Seigaiha />
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: 1280, margin: '0 auto', padding: '36px 32px 32px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
+      <div style={{ position: 'relative', zIndex: 1, padding: '32px 32px 30px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
         <div>
           <p style={{ color: '#6E6356', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.18em', margin: '0 0 8px' }}>Station Overview</p>
           <h1 style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 38, fontWeight: 900, margin: '0 0 6px', letterSpacing: '0.01em', lineHeight: 1.05 }}>Platform Status</h1>
@@ -81,9 +81,10 @@ export default function Dashboard() {
   return (
     <>
       <StatusBar connected={connected} overrideMode={false} voiceOn={voiceOn} onToggleVoice={() => setVoiceOn(v => !v)} />
-      <HeroStrip platforms={platforms} />
 
-      <main style={{ maxWidth: 1280, margin: '0 auto', padding: '28px 32px 56px' }}>
+      <main style={{ maxWidth: 1280, margin: '0 auto', padding: '20px 32px 56px' }}>
+        <HeroStrip platforms={platforms} />
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 18, marginBottom: 18 }}>
           {platformIds.length > 0
             ? platformIds.map(pid => <PlatformCard key={pid} state={platforms[pid]} />)
