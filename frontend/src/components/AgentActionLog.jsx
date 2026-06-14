@@ -1,5 +1,16 @@
 import { AgentIcon } from '../lib/icons'
-import { useT } from '../lib/i18n/context'
+import { useT, useTranslatedText } from '../lib/i18n/context'
+
+// Renders the entry's dynamic text, translated to the current UI language.
+function LogText({ entry }) {
+  const raw = entry.reasoning || entry.message || entry.text || ''
+  const text = useTranslatedText(raw)
+  return (
+    <p style={{ color: '#211C15', fontSize: 13, margin: 0, lineHeight: 1.55 }}>
+      {text || JSON.stringify(entry)}
+    </p>
+  )
+}
 
 const CHIP_STYLE = {
   HOLD:               { color: '#B8352C', lightBg: '#F9EAE6', key: 'log.chip.hold' },
@@ -103,9 +114,7 @@ export default function AgentActionLog({ log, onOverride }) {
                       </span>
                     ))}
                   </div>
-                  <p style={{ color: '#211C15', fontSize: 13, margin: 0, lineHeight: 1.55 }}>
-                    {entry.reasoning || entry.message || entry.text || JSON.stringify(entry)}
-                  </p>
+                  <LogText entry={entry} />
                 </div>
 
                 {entry.overridden ? (

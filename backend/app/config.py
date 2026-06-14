@@ -35,6 +35,22 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     llm_provider: str = "groq"  # "groq" (free, Llama 3) or "claude"
 
+    # Voice (TTS) — ElevenLabs, proxied server-side (keeps key off the client).
+    # A distinct premade voice per language (all free-tier usable).
+    # One key, OR several comma-separated — the TTS route rotates to the next key
+    # automatically when one runs out of credits.
+    elevenlabs_api_key: str = ""
+    elevenlabs_voices: dict[str, str] = {
+        "en": "EXAVITQu4vr4xnSDxMaL",  # Sarah  — mature, reassuring
+        "ja": "XrExE9yKIg1WjnnlVkGX",  # Matilda — knowledgeable, professional
+        "hi": "Xb7hH8MSUJpSbSDYk0k2",  # Alice  — clear, engaging
+    }
+
+    @property
+    def elevenlabs_keys(self) -> list[str]:
+        """All configured ElevenLabs keys (comma-separated), for credit rotation."""
+        return [k.strip() for k in self.elevenlabs_api_key.split(",") if k.strip()]
+
     @property
     def effective_llm_key(self) -> str:
         """Return the API key for the active provider."""

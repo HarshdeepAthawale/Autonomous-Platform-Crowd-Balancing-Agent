@@ -40,11 +40,9 @@ export function useBackend() {
       }
 
     } else if (msg.type === 'status_announcement' && msg.announcement) {
-      const ann = msg.announcement
-      if (ann?.en || ann?.ja || ann?.hi) {
-        setLastAnnouncement({ texts: { en: ann.en, ja: ann.ja, hi: ann.hi }, nonce: Date.now() })
-      }
-      // Add every status tick to the log so the operator sees live heartbeats
+      // NOTE: status ticks fire every ~20s. We do NOT speak them (that would burn
+      // ElevenLabs credits on every heartbeat) — voice is reserved for real agent
+      // actions + zone-change alerts. We still log them so the operator sees heartbeats.
       setLog(prev => [{
         id: `status_${msg.ts || Date.now()}`,
         ts: msg.ts || new Date().toISOString(),

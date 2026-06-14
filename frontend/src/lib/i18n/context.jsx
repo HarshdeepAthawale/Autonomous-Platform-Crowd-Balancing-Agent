@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
-import { translateStrings } from '../gemini'
+import { translateStrings, translateText } from '../translate'
 
 const LANG_KEY = 'crowd-lang'
 const FALLBACK = 'en'
@@ -182,4 +182,20 @@ export function useI18n() {
 export function useT() {
   const { t } = useI18n()
   return t
+}
+
+// Translate a DYNAMIC backend string (agent-log line, announcement, …) to the
+// current UI language. Shows English immediately, swaps in the translation when
+// ready, and re-translates on language switch.
+export function useTranslatedText(text) {
+  const { lang } = useI18n()
+  const [out, setOut] = useState(text)
+  useEffect(() => {
+    if (!text || lang === 'en') { setOut(text); return }
+    let alive = true
+    setOut(text)  // English while we fetch
+    translateText(text, lang).then(res => { if (alive) setOut(res) })
+    return () => { alive = false }
+  }, [text, lang])
+  return out
 }
