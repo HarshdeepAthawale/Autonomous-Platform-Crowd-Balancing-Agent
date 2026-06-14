@@ -239,6 +239,52 @@ def claude_draft(ctx: dict, api_key: str) -> dict:
     return data
 
 
+def groq_status(situation: str, api_key: str) -> str:
+    """Compose ONE natural, VARIED station-PA announcement (English) for a live
+    crowd situation. High temperature so wording never repeats like a script."""
+    import httpx
+
+    resp = httpx.post(
+        "https://api.groq.com/openai/v1/chat/completions",
+        headers={"Authorization": f"Bearer {api_key}"},
+        json={
+            "model": "llama-3.3-70b-versatile",
+            "messages": [
+                {"role": "system", "content": (
+                    "You are the live public-address announcer at a railway station. Given the "
+                    "current platform situation, speak ONE short, calm announcement (1-2 sentences) "
+                    "in English. VARY your phrasing every time — never sound scripted or repeat a "
+                    "fixed line. Mention only what matters: if a platform is crowded and another has "
+                    "space, gently suggest the quieter one; if all is calm, a brief reassuring note. "
+                    "Never command — only inform and suggest. Return ONLY the announcement text, no "
+                    "quotes, no labels."
+                )},
+                {"role": "user", "content": f"Current situation: {situation}"},
+            ],
+            "max_tokens": 120,
+            "temperature": 0.9,
+        },
+        timeout=10.0,
+    )
+    resp.raise_for_status()
+    return resp.json()["choices"][0]["message"]["content"].strip().strip('"')
+
+
+def make_announcer(api_key: str | None, provider: str = "groq") -> Callable[[str], str] | None:
+    """Return announce(situation)->str for varied AI status announcements, or None
+    (caller falls back to the deterministic template)."""
+    if not api_key or provider != "groq":
+        return None
+
+    def announce(situation: str):
+        try:
+            return groq_status(situation, api_key)
+        except Exception:
+            return None
+
+    return announce
+
+
 def make_draft(api_key: str | None, provider: str = "groq") -> Callable[[dict], dict]:
     """Return a draft(ctx) function. No key => deterministic template path.
 

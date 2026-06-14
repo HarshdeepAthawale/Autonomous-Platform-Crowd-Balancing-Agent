@@ -16,7 +16,7 @@ if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
 from agent.agents.supervisor import run_tick as decide_tick   # noqa: E402
-from agent.llm import make_draft        # noqa: E402
+from agent.llm import make_announcer, make_draft  # noqa: E402
 from agent.models import Policy          # noqa: E402
 
 from .config import settings            # noqa: E402
@@ -32,6 +32,8 @@ POLICY = Policy(
 # No API key => deterministic template wording (rule-only).
 LLM_KEY = settings.effective_llm_key or None
 DRAFT = make_draft(LLM_KEY, provider=settings.llm_provider)
+# Varied, situation-aware AI status announcements (None => template).
+ANNOUNCE = make_announcer(LLM_KEY, provider=settings.llm_provider)
 
 _history: deque[dict] = deque(maxlen=50)
 # Trains the operator has manually overridden — the agent must not re-hold them.
@@ -64,7 +66,7 @@ def _update_outcomes(snap: list[dict]):
 async def run_tick():
     snap = _snapshot()
     _update_outcomes(snap)
-    result = decide_tick(snap, POLICY, draft=DRAFT)
+    result = decide_tick(snap, POLICY, draft=DRAFT, announce=ANNOUNCE)
 
     # Respect operator override: never re-hold a train the operator cancelled.
     hold = result.side_effects.hold

@@ -100,14 +100,28 @@ def act(decision: DecisionOutput, snapshot: list[dict], draft=None) -> tuple[dic
     return record, se
 
 
-def status_announce(snapshot: list[dict], failsafe: bool = False) -> SideEffects:
+def _situation_str(snapshot: list[dict]) -> str:
+    """Compact live-situation description fed to the AI announcer."""
+    parts = []
+    for p in snapshot:
+        nt = p.get("next_train") or {}
+        train = ""
+        if nt:
+            train = f", next train {nt.get('train_id')} in {nt.get('eta_min')} min" + (
+                " (held)" if nt.get("held") else ""
+            )
+        parts.append(
+            f"Platform {p['platform_id']}: {p.get('zone')} — {p.get('density_pct')}% full, "
+            f"{p.get('count')} people{train}"
+        )
+    return "; ".join(parts)
+
+
+def status_announce(snapshot: list[dict], failsafe: bool = False, announce=None) -> SideEffects:
     """Generate a status announcement for non-action ticks.
 
-    Covers every situation:
-      - failsafe / no data
-      - GREEN (all clear)
-      - YELLOW (filling up advisory)
-      - RED crowded (when the agent can't act — already held, no train, etc.)
+    `announce(situation)` (Groq, optional) composes a varied, situation-aware
+    announcement. Falls back to the deterministic template when unavailable.
     """
     if failsafe or not snapshot:
         d = template_failsafe({})
@@ -123,11 +137,22 @@ def status_announce(snapshot: list[dict], failsafe: bool = False) -> SideEffects
         else:
             d = template_status_green({})
 
+    en = d.get("announcement_en", "")
+    reasoning = d.get("reasoning", "")
+
+    # AI override: a fresh, situation-aware announcement each time (no repetition).
+    if announce and not failsafe and snapshot:
+        ai = announce(_situation_str(snapshot))
+        if ai:
+            en = ai
+            reasoning = ai  # show the actual spoken announcement in the log
+
     return SideEffects(
         dashboard_msgs=[{
             "type": "status_announcement",
-            "announcement": {"en": d.get("announcement_en", ""), "ja": d.get("announcement_ja", ""), "hi": d.get("announcement_hi", "")},
-            "reasoning": d.get("reasoning", ""),
+            # Voice speaks `en`; the backend /api/tts translates it per language.
+            "announcement": {"en": en, "ja": "", "hi": ""},
+            "reasoning": reasoning,
             "ts": _now_iso(),
         }]
     )
