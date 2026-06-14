@@ -55,9 +55,19 @@ export default function AgentControls({ triggerTick }) {
 
       {last && (
         <div style={{ marginTop: 12, padding: '10px 12px', backgroundColor: '#F4EEE3', border: '1px solid #E7DECE', borderRadius: 8 }}>
-          <p style={{ color: '#6E6356', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>Last result</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+            <span style={{ color: '#6E6356', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Last result</span>
+            <span style={{
+              fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 9999, letterSpacing: '0.05em', textTransform: 'uppercase',
+              backgroundColor: last.action ? '#EDF3E4' : '#F4EEE3',
+              color: last.action ? '#5C8A3A' : '#A99E8C',
+              border: `1px solid ${last.action ? '#BCD49E' : '#E7DECE'}`,
+            }}>
+              {last.action ? 'Acted' : 'No action'}
+            </span>
+          </div>
           <p style={{ color: '#211C15', fontSize: 12, margin: 0, lineHeight: 1.5 }}>
-            {last.reasoning || last.action || JSON.stringify(last).slice(0, 120)}
+            {last.decision?.reasoning || last.reason || 'Tick complete.'}
           </p>
         </div>
       )}
