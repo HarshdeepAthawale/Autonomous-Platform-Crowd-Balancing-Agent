@@ -1,9 +1,9 @@
-"""POST /api/tts — server-side ElevenLabs proxy for natural multilingual voice.
+"""POST /api/tts — natural multilingual voice (Groq translation + ElevenLabs).
 
-The browser's built-in SpeechSynthesis (espeak on Linux) is robotic and can't
-reliably voice Japanese/Hindi. We proxy ElevenLabs (Multilingual v2) here so the
-API key stays off the client, there's no CORS issue, and identical announcements
-are cached. Returns audio/mpeg the frontend plays directly.
+The frontend always sends ENGLISH text + a target language. We Groq-translate it
+(no hardcoded JA/HI), then synthesize with ElevenLabs Multilingual v2 using a
+distinct premade voice per language. Result MP3 is cached and returned as
+audio/mpeg. Keeps both API keys server-side; no CORS.
 """
 import hashlib
 
@@ -13,15 +13,16 @@ from fastapi.responses import Response
 from pydantic import BaseModel
 
 from ..config import settings
+from ..translate import translate_text
 
 router = APIRouter()
 
-MODEL_ID = "eleven_multilingual_v2"   # speaks EN / JA / HI from one model
-_cache: dict[str, bytes] = {}          # sha1(lang:text) -> mp3 bytes
+MODEL_ID = "eleven_multilingual_v2"   # speaks EN / JA / HI
+_cache: dict[str, bytes] = {}          # sha1(lang:english_text) -> mp3 bytes
 
 
 class TTSIn(BaseModel):
-    text: str
+    text: str        # English source text
     lang: str = "en"
 
 
@@ -29,16 +30,20 @@ class TTSIn(BaseModel):
 async def tts(body: TTSIn):
     if not settings.elevenlabs_api_key:
         raise HTTPException(status_code=503, detail="TTS not configured (no ElevenLabs key)")
-    text = body.text.strip()
-    if not text:
+    text_en = body.text.strip()
+    if not text_en:
         raise HTTPException(status_code=400, detail="empty text")
 
-    key = hashlib.sha1(f"{body.lang}:{text}".encode()).hexdigest()
+    key = hashlib.sha1(f"{body.lang}:{text_en}".encode()).hexdigest()
     if key in _cache:
         return Response(content=_cache[key], media_type="audio/mpeg")
 
+    # AI-translate EN -> target language (falls back to English on failure).
+    spoken = translate_text(text_en, body.lang)
+    voice_id = settings.elevenlabs_voices.get(body.lang, settings.elevenlabs_voices["en"])
+
     url = (
-        f"https://api.elevenlabs.io/v1/text-to-speech/{settings.elevenlabs_voice_id}"
+        f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
         "?output_format=mp3_44100_128"
     )
     try:
@@ -51,7 +56,7 @@ async def tts(body: TTSIn):
                     "Accept": "audio/mpeg",
                 },
                 json={
-                    "text": text,
+                    "text": spoken,
                     "model_id": MODEL_ID,
                     "voice_settings": {"stability": 0.5, "similarity_boost": 0.75},
                 },

@@ -35,9 +35,14 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     llm_provider: str = "groq"  # "groq" (free, Llama 3) or "claude"
 
-    # Voice (TTS) — ElevenLabs, proxied server-side (keeps key off the client)
+    # Voice (TTS) — ElevenLabs, proxied server-side (keeps key off the client).
+    # A distinct premade voice per language (all free-tier usable).
     elevenlabs_api_key: str = ""
-    elevenlabs_voice_id: str = "EXAVITQu4vr4xnSDxMaL"  # Sarah — clear, reassuring (premade)
+    elevenlabs_voices: dict[str, str] = {
+        "en": "EXAVITQu4vr4xnSDxMaL",  # Sarah  — mature, reassuring
+        "ja": "XrExE9yKIg1WjnnlVkGX",  # Matilda — knowledgeable, professional
+        "hi": "Xb7hH8MSUJpSbSDYk0k2",  # Alice  — clear, engaging
+    }
 
     @property
     def effective_llm_key(self) -> str:

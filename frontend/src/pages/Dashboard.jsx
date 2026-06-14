@@ -10,17 +10,10 @@ import { useAnnouncer, speakText } from '../hooks/useAnnouncer'
 import { classifyZone, ZONE_COLOR } from '../lib/zone'
 import { useT, useI18n } from '../lib/i18n/context'
 
-const WELCOME = {
-  en: 'Welcome to the station. All platforms are currently available. Please proceed safely.',
-  ja: '駅へようこそ。現在、すべてのホームにゆとりがございます。安全にご移動ください。',
-  hi: 'स्टेशन में आपका स्वागत है। सभी प्लेटफॉर्म वर्तमान में उपलब्ध हैं। कृपया सुरक्षित रहें।',
-}
-
-const CROWDED_ALERT = {
-  en: (pid) => `Platform ${pid} is now crowded. Please consider moving to another platform for a more comfortable journey.`,
-  ja: (pid) => `ホーム${pid}が大変混雑しています。快適にご乗車いただくため、他のホームへの移動をご検討ください。`,
-  hi: (pid) => `प्लेटफॉर्म ${pid} अब बहुत भीड़भाड़ है। बेहतर यात्रा के लिए कृपया दूसरे प्लेटफॉर्म पर जाने पर विचार करें।`,
-}
+// English source only — the backend Groq-translates to the selected language
+// before ElevenLabs speaks it (no hardcoded JA/HI).
+const WELCOME = 'Welcome to the station. All platforms are currently available. Please proceed safely.'
+const CROWDED_ALERT = (pid) => `Platform ${pid} is now crowded. Please consider moving to another platform for a more comfortable journey.`
 
 function Seigaiha() {
   return (
@@ -96,7 +89,7 @@ export default function Dashboard() {
   // Auto-welcome 2 seconds after page loads
   useEffect(() => {
     const timer = setTimeout(() => {
-      speakText(WELCOME[lang] || WELCOME.en, lang)
+      speakText(WELCOME, lang)
     }, 2000)
     return () => clearTimeout(timer)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -108,8 +101,7 @@ export default function Dashboard() {
     Object.entries(platforms).forEach(([pid, p]) => {
       const curZone = p.zone || classifyZone(p.density_pct)
       if (curZone === 'RED' && prev[pid] && prev[pid] !== 'RED') {
-        const msgFn = CROWDED_ALERT[lang] || CROWDED_ALERT.en
-        speakText(msgFn(pid), lang)
+        speakText(CROWDED_ALERT(pid), lang)
       }
     })
     prevZonesRef.current = Object.fromEntries(

@@ -26,8 +26,9 @@ export function useAnnouncer(payload, lang, enabled) {
     if (payload.nonce === lastNonce.current) return
     lastNonce.current = payload.nonce
 
-    // Prefer the current UI language; fall back to English text if missing.
-    const text = payload.texts[lang] || payload.texts.en
+    // Always send the ENGLISH source; the backend Groq-translates to `lang`
+    // before ElevenLabs speaks it (no hardcoded JA/HI).
+    const text = payload.texts.en || payload.texts[lang]
     if (!text) return
 
     speakNatural(text, lang).catch(err => console.warn('[tts]', err))
