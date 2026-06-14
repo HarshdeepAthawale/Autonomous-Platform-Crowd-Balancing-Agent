@@ -22,11 +22,11 @@ export default function StatusBar({ connected, overrideMode, voiceOn, onToggleVo
 
   return (
     // Floating "island" navbar — sticky, centered, glassy pill
-    <div style={{ position: 'sticky', top: 14, zIndex: 50, display: 'flex', justifyContent: 'center', padding: '14px 20px 0', pointerEvents: 'none' }}>
+    <div style={{ position: 'sticky', top: 14, zIndex: 50, display: 'flex', justifyContent: 'center', padding: '14px 32px 0', pointerEvents: 'none' }}>
       <header style={{
         pointerEvents: 'auto',
         width: '100%',
-        maxWidth: 1240,
+        maxWidth: 1216,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
