@@ -30,5 +30,8 @@ class CVSettings(BaseSettings):
     # Primary demo path: deterministic, no camera required
     use_synthetic: bool = True
 
+    # Print rolling frame->detect->publish latency (for the on-device latency proof).
+    log_latency: bool = False
+
 
 settings = CVSettings()

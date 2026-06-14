@@ -126,6 +126,42 @@ produce an unsafe action.
 
 ---
 
+## Quick Start
+
+Run the backend (FastAPI + agent loop) and frontend; the multi-agent pipeline runs
+**inside** the backend and auto-ticks every 20s — there's no separate agent process.
+
+**Backend** — http://localhost:8000
+```bash
+cd backend
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+Health check: `curl http://localhost:8000/health`
+
+**Frontend** — http://localhost:5173
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Vite proxies `/api` and `/ws` to `localhost:8000`, so just run both.
+
+**Routes:** `/` Dashboard · `/display/gate` gate display · `/display/A`, `/display/B`
+platform signage boards.
+
+**Camera-less demo:** on the Dashboard, click **Scan → Platform A** ~7× (gauge fills
+Green→Yellow→Red), then **Trigger Agent Tick** → the agent holds the train, logs its
+reasoning, and updates signage. Flip **Voice On** to hear the announcement; **Reset**
+returns platforms to calm. The CV worker (`cv/`) is optional — the demo uses the
+synthetic density path. Full run guide and remaining deploy work in
+[HANDOFF.md](HANDOFF.md).
+
+**Tests:** `cd backend && pytest -q` (21) · `cd agent && pytest -q` · `cd cv && pytest -q` (19)
+
+---
+
 ## Documentation
 
 Full planning suite lives in this repo:
@@ -148,11 +184,11 @@ Full planning suite lives in this repo:
 | Phase | Status | Notes |
 |-------|--------|-------|
 | 0 — Planning & Docs | Complete | 8 docs: PRD, TechSpec, AppFlow, Design, Schema, Plan, Tracker, Rules |
-| 1 — Backend Skeleton | Complete | FastAPI + WS + TTL expiry · 18 tests pass |
+| 1 — Backend Skeleton | Complete | FastAPI + WS + TTL expiry · 21 tests pass |
 | 2 — Computer Vision | Complete | YOLOv8 + synthetic fallback · 19 tests · real YOLO inference pending on-device run |
 | 3 — Agentic Core | Complete | Hierarchical multi-agent (Supervisor→Crowd∥Train∥Safety→Decision→Action) · 29 agent + 3 backend tests |
-| 4 — Frontend | Not started | React + Tailwind wa-modern |
-| 5 — Integration & Demo | Not started | Vercel + Railway deploy + privacy proof |
+| 4 — Frontend | Complete | React + Vite + Tailwind v4 + Recharts · Dashboard + signage boards + gate display + voice (TTS) |
+| 5 — Integration & Demo | In progress | Vercel + Railway deploy + privacy proof · see [HANDOFF.md](HANDOFF.md) §4 |
 
 Full task breakdown in [Tracker.md](Tracker.md). Build order: Backend → CV → Agent → Frontend → Demo.
 

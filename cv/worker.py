@@ -64,7 +64,13 @@ def run_worker(
                 continue
 
             frame = resize_fn(frame, settings.resize_width)
-            n = counter.count(frame)
+            if settings.log_latency:
+                _t0 = time.perf_counter()
+                n = counter.count(frame)
+                _detect_ms = (time.perf_counter() - _t0) * 1000
+                print(f"[cv/worker] {platform_id} detect {_detect_ms:.0f}ms count={n}")
+            else:
+                n = counter.count(frame)
             reading = tracker.update(n)
             # `frame` goes out of scope here — never saved to disk
 
