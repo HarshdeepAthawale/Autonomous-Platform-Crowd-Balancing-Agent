@@ -12,7 +12,7 @@
 | Phase | Title | Status | Progress |
 |-------|-------|--------|----------|
 | 0 | Planning & Docs | ✅ Done | 8/8 docs |
-| 1 | Foundation & Backend Skeleton | ✅ Done | 8/8 · 18 tests pass |
+| 1 | Foundation & Backend Skeleton | ✅ Done | 8/8 · 21 tests pass |
 | 2 | Computer Vision Density Pipeline | ✅ Done* | 6/6 · 19 tests · *real YOLO inference pending on-device run |
 | 3 | Agentic Decision Core (hierarchical multi-agent) | ✅ Done | 6/6 · 29 agent + 3 backend tests · LangGraph parity verified |
 | 4 | Frontend: Dashboard, Displays & TTS | ✅ Done | 8/8 · dashboard + signage + gate + voice |
@@ -88,7 +88,7 @@ Warm wa-modern (Zen Old Mincho + Zen Kaku Gothic), English UI, radial arc gauge,
 | 4.5 | Gate display + signage boards | ✅ | | `/display/gate` + `/display/:id` via `/ws/display/{id}` |
 | 4.6 | Simulation "scan" page | ✅ | | scan buttons → /api/scan |
 | 4.7 | TTS playback | ✅ | | browser speechSynthesis (no key); voice toggle in nav |
-| 4.8 | `/api/override` wiring | ✅ | | override button posts `decision_id` |
+| 4.8 | `/api/override` wiring | ✅ | | full cancellation: reverses hold, agent won't re-hold, row marked "Overridden" |
 
 **Fixed two schema bugs** during this phase: PlatformCard was reading `arrival_count` (backend sends `count`); log read top-level `reasoning` (backend nests under `decision`). Verified live against running backend — full HOLD+REDIRECT+ANNOUNCE+SIGNAGE chain renders.
 
@@ -114,7 +114,7 @@ Warm wa-modern (Zen Old Mincho + Zen Kaku Gothic), English UI, radial arc gauge,
 | 2026-06-14 | Agent framework | **LangGraph — confirmed.** Hierarchical multi-agent (Supervisor → Crowd∥Train∥Safety → Decision → Action) |
 | 2026-06-14 | Agent architecture | **Layered hierarchical multi-agent — confirmed** (replaced flat decision engine) |
 | 2026-06-14 | Claude API key | **Not available yet — confirmed.** Rule + template (bilingual) wording active; Claude code-ready, off by default |
-| 2026-06-14 | TTS provider | ElevenLabs free tier vs gTTS — **pending confirm** |
+| 2026-06-14 | TTS provider | **Resolved — browser SpeechSynthesis** (free, no key, no network). Voice toggle in nav; speaks `announcement.en` on each agent action. |
 | 2026-06-14 | Persistence | In-memory + time-series vs SQLite/Redis — **pending confirm** |
 | 2026-06-14 | Hosting | **Vercel (frontend) + Railway (backend) — confirmed.** Synthetic CV runs on Railway; real YOLO is local-only. |
 

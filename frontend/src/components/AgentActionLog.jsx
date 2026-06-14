@@ -74,9 +74,11 @@ export default function AgentActionLog({ log, onOverride }) {
                 className="slide-in"
                 style={{
                   borderBottom: '1px solid #EFE7D9',
-                  borderLeft: `3px solid ${accentColor(entry)}`,
+                  borderLeft: `3px solid ${entry.overridden ? '#C2B7A4' : accentColor(entry)}`,
                   padding: '14px 24px',
                   display: 'flex', alignItems: 'flex-start', gap: 14,
+                  opacity: entry.overridden ? 0.6 : 1,
+                  transition: 'opacity 0.3s ease',
                 }}
               >
                 <span style={{ color: '#A99E8C', fontSize: 11, minWidth: 54, paddingTop: 3, fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
@@ -101,7 +103,15 @@ export default function AgentActionLog({ log, onOverride }) {
                   </p>
                 </div>
 
-                {onOverride && entry.id && (
+                {entry.overridden ? (
+                  <span style={{
+                    border: '1px solid #E7DECE', backgroundColor: '#F4EEE3',
+                    color: '#6E6356', fontSize: 11, padding: '4px 12px',
+                    borderRadius: 9999, whiteSpace: 'nowrap', flexShrink: 0, fontWeight: 600,
+                  }}>
+                    Overridden
+                  </span>
+                ) : onOverride && entry.id && (
                   <button
                     onClick={() => onOverride(entry.id)}
                     style={{

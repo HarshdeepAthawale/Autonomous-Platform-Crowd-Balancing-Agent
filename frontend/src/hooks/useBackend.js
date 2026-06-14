@@ -38,6 +38,9 @@ export function useBackend() {
       const en = d.announcement?.en
       if (en) setLastAnnouncement({ text: en, nonce: Date.now() })
 
+    } else if (msg.type === 'override') {
+      setLog(prev => prev.map(e => e.id === msg.action_id ? { ...e, overridden: true } : e))
+
     } else if (msg.type === 'graph_point') {
       setGraph(prev => {
         const series = prev[msg.platform_id] ?? []

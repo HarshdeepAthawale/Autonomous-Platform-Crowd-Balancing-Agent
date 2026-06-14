@@ -34,6 +34,12 @@ LLM_KEY = settings.effective_llm_key or None
 DRAFT = make_draft(LLM_KEY, provider=settings.llm_provider)
 
 _history: deque[dict] = deque(maxlen=50)
+# Trains the operator has manually overridden — the agent must not re-hold them.
+_overridden: set[str] = set()
+
+
+def mark_overridden(train_id: str):
+    _overridden.add(train_id)
 
 
 def _snapshot() -> list[dict]:
@@ -59,6 +65,11 @@ async def run_tick():
     snap = _snapshot()
     _update_outcomes(snap)
     result = decide_tick(snap, POLICY, draft=DRAFT)
+
+    # Respect operator override: never re-hold a train the operator cancelled.
+    hold = result.side_effects.hold
+    if hold and hold.train_id in _overridden:
+        return result
 
     if result.side_effects.hold:
         schedule.hold(result.side_effects.hold.train_id, result.side_effects.hold.minutes)
