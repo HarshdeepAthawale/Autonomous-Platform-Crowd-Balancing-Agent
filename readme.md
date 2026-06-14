@@ -10,6 +10,24 @@ announcements) — never on people — to keep platforms balanced, safe, and cal
 
 ---
 
+## Demo
+
+> 🎥 **Watch the live demo** — if the player below doesn't load inline, [click here to view the video](https://github.com/HarshdeepAthawale/Autonomous-Platform-Crowd-Balancing-Agent/releases/download/demo-v1/WhatsApp.Video.2026-06-14.at.10.46.42.PM.mp4).
+
+https://github.com/HarshdeepAthawale/Autonomous-Platform-Crowd-Balancing-Agent/releases/download/demo-v1/WhatsApp.Video.2026-06-14.at.10.46.42.PM.mp4
+
+### Screenshots
+
+**Live dashboard — platform status & density gauges**
+
+![Dashboard overview — Platform Status with crowd gauges](docs/screenshots/dashboard-overview.png)
+
+**Density-over-time graph, autonomous agent action log & ticket scan**
+
+![Dashboard — density graph, agent action log and ticket scan](docs/screenshots/dashboard-actions.png)
+
+---
+
 ## The Problem
 
 Railway stations regularly face dangerous platform overcrowding — passengers pile onto
