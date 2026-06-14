@@ -23,8 +23,12 @@ def run_tick(snapshot: list[dict], policy: Policy, draft=None) -> TickResult:
     crowd_r, train_r, safety_r = gather_reports(snapshot, policy)
 
     d = decision.decide(snapshot, crowd_r, train_r, safety_r, policy)
-    if not d.act:
-        return TickResult(False, d.reason)
+    if d.act:
+        record, side_effects = action.act(d, snapshot, draft)
+        return TickResult(True, d.reason, decision=record, side_effects=side_effects)
 
-    record, side_effects = action.act(d, snapshot, draft)
-    return TickResult(True, d.reason, decision=record, side_effects=side_effects)
+    # Produce a voice status announcement for every non-action tick so the
+    # TTS system speaks in ALL situations — green, yellow, crowded-but-stuck,
+    # or fail-safe/no-data — not just when the agent takes action.
+    side_effects = action.status_announce(snapshot, safety_r.failsafe)
+    return TickResult(False, d.reason, side_effects=side_effects)

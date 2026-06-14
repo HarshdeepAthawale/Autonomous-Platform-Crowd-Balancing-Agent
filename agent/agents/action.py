@@ -7,7 +7,7 @@ key is set). The Action Agent never re-decides — it only executes.
 """
 from datetime import datetime, timezone
 
-from ..llm import template_draft
+from ..llm import template_draft, template_failsafe, template_status_crowded, template_status_green, template_status_yellow
 from ..models import DecisionOutput, Plan, SideEffects
 
 
@@ -98,3 +98,36 @@ def act(decision: DecisionOutput, snapshot: list[dict], draft=None) -> tuple[dic
         ],
     )
     return record, se
+
+
+def status_announce(snapshot: list[dict], failsafe: bool = False) -> SideEffects:
+    """Generate a status announcement for non-action ticks.
+
+    Covers every situation:
+      - failsafe / no data
+      - GREEN (all clear)
+      - YELLOW (filling up advisory)
+      - RED crowded (when the agent can't act — already held, no train, etc.)
+    """
+    if failsafe or not snapshot:
+        d = template_failsafe({})
+    else:
+        zones = {p["platform_id"]: p.get("zone") for p in snapshot}
+        red = [pid for pid, z in zones.items() if z == "RED"]
+        yellow = [pid for pid, z in zones.items() if z == "YELLOW"]
+
+        if red:
+            d = template_status_crowded({"red_platforms": red})
+        elif yellow:
+            d = template_status_yellow({"yellow_platforms": yellow})
+        else:
+            d = template_status_green({})
+
+    return SideEffects(
+        dashboard_msgs=[{
+            "type": "status_announcement",
+            "announcement": {"ja": d.get("announcement_ja", ""), "en": d.get("announcement_en", "")},
+            "reasoning": d.get("reasoning", ""),
+            "ts": _now_iso(),
+        }]
+    )

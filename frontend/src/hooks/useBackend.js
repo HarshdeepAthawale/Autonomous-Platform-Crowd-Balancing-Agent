@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback } from 'react'
 import { useWebSocket } from './useWebSocket'
 
 const WS_URL = import.meta.env.VITE_WS_URL || `ws://${window.location.host}/ws/dashboard`
@@ -11,7 +11,6 @@ export function useBackend() {
   const [graphSeries, setGraph]   = useState({})
   const [connected, setConnected] = useState(false)
   const [lastAnnouncement, setLastAnnouncement] = useState(null)  // { text, nonce }
-  const wsRef = useRef(null)
 
   const handleMessage = useCallback((msg) => {
     setConnected(true)
@@ -38,6 +37,10 @@ export function useBackend() {
       const en = d.announcement?.en
       if (en) setLastAnnouncement({ text: en, nonce: Date.now() })
 
+    } else if (msg.type === 'status_announcement' && msg.announcement) {
+      const en = msg.announcement?.en
+      if (en) setLastAnnouncement({ text: en, nonce: Date.now() })
+
     } else if (msg.type === 'override') {
       setLog(prev => prev.map(e => e.id === msg.action_id ? { ...e, overridden: true } : e))
 
@@ -49,7 +52,7 @@ export function useBackend() {
     }
   }, [])
 
-  wsRef.current = useWebSocket(WS_URL, handleMessage)
+  useWebSocket(WS_URL, handleMessage)
 
   const scanTicket = useCallback(async (platform_id, train_id = '12045') => {
     await fetch('/api/scan', {

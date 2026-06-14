@@ -11,9 +11,9 @@ def test_crowd_agent_flags_red_rising(worked_example):
     assert r.trend["B"] == "stable"
 
 
-def test_crowd_agent_ignores_red_but_not_rising():
+def test_crowd_agent_flags_red_stable():
     snap = [platform("A", 92.0, "RED", "stable", "12045", 6.0)]
-    assert crowd.analyze(snap).crowded_rising == []
+    assert crowd.analyze(snap).crowded_rising == ["A"]
 
 
 def test_train_agent_holdability(worked_example):

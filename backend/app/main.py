@@ -58,7 +58,11 @@ async def health():
 @app.websocket("/ws/dashboard")
 async def ws_dashboard(ws: WebSocket):
     await manager.connect("dashboard", ws)
-    await ws.send_json(state_payload())  # initial snapshot to this client
+    try:
+        await ws.send_json(state_payload())  # initial snapshot to this client
+    except Exception:
+        manager.disconnect("dashboard", ws)
+        return
     try:
         while True:
             await ws.receive_text()  # keep-alive; client may ping

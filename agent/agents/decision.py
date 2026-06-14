@@ -29,11 +29,11 @@ def best_alternative(red_p: dict, snapshot: list[dict], policy: Policy) -> dict 
 
 
 def evaluate(snapshot: list[dict], policy: Policy) -> dict[str, dict | None]:
-    """RED+rising platform -> its best safe alternative (or None)."""
+    """RED platform -> its best safe alternative (or None)."""
     return {
         p["platform_id"]: best_alternative(p, snapshot, policy)
         for p in snapshot
-        if p.get("zone") == "RED" and p.get("trend") == "rising"
+        if p.get("zone") == "RED"
     }
 
 

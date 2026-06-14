@@ -11,6 +11,6 @@ def analyze(snapshot: list[dict]) -> CrowdReport:
     crowded_rising = [
         p["platform_id"]
         for p in snapshot
-        if p.get("zone") == "RED" and p.get("trend") == "rising"
+        if p.get("zone") == "RED"
     ]
     return CrowdReport(crowded_rising=crowded_rising, density=density, trend=trend)

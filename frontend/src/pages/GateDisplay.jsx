@@ -12,7 +12,7 @@ function useClock() {
 
 export default function GateDisplay() {
   const [platforms, setPlatforms] = useState({})
-  const [redirect, setRedirect]   = useState(null)
+  const [, setRedirect]   = useState(null)
   const clock = useClock()
 
   const url = import.meta.env.VITE_WS_URL || `ws://${window.location.host}/ws/dashboard`

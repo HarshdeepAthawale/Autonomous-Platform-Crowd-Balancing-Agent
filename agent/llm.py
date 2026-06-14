@@ -97,6 +97,57 @@ SYSTEM_PROMPT = (
 )
 
 
+def template_status_green(ctx: dict) -> dict:
+    """All-clear status — all platforms GREEN."""
+    return {
+        "reasoning": "all platforms within safe limits — status announcement",
+        "announcement_ja": "現在、すべてのホームにゆとりがございます。通常通り運行しております。",
+        "announcement_en": "All platforms currently have available space. Service is running normally.",
+        "source": "rule",
+    }
+
+
+def template_status_yellow(ctx: dict) -> dict:
+    """Filling-up advisory — some platforms YELLOW."""
+    plats = ctx.get("yellow_platforms", [])
+    plat_str = ", ".join(plats)
+    if len(plats) == 1:
+        return {
+            "reasoning": f"platform {plat_str} is YELLOW — advisory announcement",
+            "announcement_ja": f"ホーム{plat_str}は混み合ってきています。お時間に余裕のある方は、他のホームをご利用ください。",
+            "announcement_en": f"Platform {plat_str} is filling up. If your schedule allows, please consider using an alternative platform.",
+            "source": "rule",
+        }
+    return {
+        "reasoning": f"platforms {plat_str} are YELLOW — advisory announcement",
+        "announcement_ja": f"ホーム{plat_str}は混み合ってきています。お時間に余裕のある方は、他のホームをご利用ください。",
+        "announcement_en": f"Platforms {plat_str} are filling up. If your schedule allows, please consider using alternative platforms.",
+        "source": "rule",
+    }
+
+
+def template_status_crowded(ctx: dict) -> dict:
+    """Crowded advisory — RED platforms exist but agent cannot act."""
+    plats = ctx.get("red_platforms", [])
+    plat_str = ", ".join(plats)
+    return {
+        "reasoning": f"platform{'s' if len(plats) != 1 else ''} {plat_str} RED but no action possible — status announcement",
+        "announcement_ja": f"ホーム{plat_str}は大変混雑しています。安全のため、係員の指示に従ってください。",
+        "announcement_en": f"Platform{'s' if len(plats) != 1 else ''} {plat_str} {'are' if len(plats) != 1 else 'is'} very crowded. Please follow staff instructions for your safety.",
+        "source": "rule",
+    }
+
+
+def template_failsafe(ctx: dict) -> dict:
+    """No-data / fail-safe situation."""
+    return {
+        "reasoning": "no platform data — fail-safe status announcement",
+        "announcement_ja": "現在、システムがデータを待機しています。しばらくお待ちください。",
+        "announcement_en": "The system is waiting for platform data. Please stand by.",
+        "source": "rule",
+    }
+
+
 def groq_draft(ctx: dict, api_key: str) -> dict:
     """Use Groq (Llama 3 70B) free tier for calm wording. OpenAI-compatible API."""
     import httpx

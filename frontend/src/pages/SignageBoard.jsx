@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useWebSocket } from '../hooks/useWebSocket'
 import { useDisplay } from '../hooks/useDisplay'
-import { ZONE_COLOR, classifyZone } from '../lib/zone'
+import { classifyZone } from '../lib/zone'
 import { TrainIcon } from '../lib/icons'
 
 function useClock() {
