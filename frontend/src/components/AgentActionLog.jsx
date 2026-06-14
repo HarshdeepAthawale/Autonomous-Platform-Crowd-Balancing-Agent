@@ -8,12 +8,14 @@ const CHIP_STYLE = {
   SIGNAGE:            { color: '#9A7B1F', lightBg: '#FBF1DA', key: 'log.chip.signage' },
   OPERATOR_ALERT:     { color: '#B8352C', lightBg: '#F9EAE6', key: 'log.chip.alert' },
   LOG:                { color: '#6E6356', lightBg: '#F4EEE3', key: 'log.chip.log' },
+  STATUS:             { color: '#2E6F95', lightBg: '#EAF4FC', key: 'log.chip.status' },
 }
 
 // Order chips by importance and keep it readable
 const CHIP_ORDER = ['HOLD', 'REDIRECT_SUGGESTION', 'ANNOUNCE', 'SIGNAGE', 'OPERATOR_ALERT']
 
 function chipsFor(entry) {
+  if (entry.isStatus) return [CHIP_STYLE.STATUS]
   const actions = Array.isArray(entry.actions) ? entry.actions : []
   const ordered = CHIP_ORDER.filter(a => actions.includes(a))
   const list = ordered.length ? ordered : ['LOG']
@@ -22,6 +24,7 @@ function chipsFor(entry) {
 
 // Primary action drives the left-border accent
 function accentColor(entry) {
+  if (entry.isStatus) return '#2E6F95'
   const c = chipsFor(entry)[0]
   return c.color
 }

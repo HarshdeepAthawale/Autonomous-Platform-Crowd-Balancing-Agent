@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import StatusBar      from '../components/StatusBar'
 import PlatformCard   from '../components/PlatformCard'
 import DensityChart   from '../components/DensityChart'
@@ -6,9 +6,21 @@ import AgentActionLog from '../components/AgentActionLog'
 import ScanPage       from '../components/ScanPage'
 import AgentControls  from '../components/AgentControls'
 import { useBackend }   from '../hooks/useBackend'
-import { useAnnouncer } from '../hooks/useAnnouncer'
+import { useAnnouncer, speakText } from '../hooks/useAnnouncer'
 import { classifyZone, ZONE_COLOR } from '../lib/zone'
-import { useT } from '../lib/i18n/context'
+import { useT, useI18n } from '../lib/i18n/context'
+
+const WELCOME = {
+  en: 'Welcome to the station. All platforms are currently available. Please proceed safely.',
+  ja: '駅へようこそ。現在、すべてのホームにゆとりがございます。安全にご移動ください。',
+  hi: 'स्टेशन में आपका स्वागत है। सभी प्लेटफॉर्म वर्तमान में उपलब्ध हैं। कृपया सुरक्षित रहें।',
+}
+
+const CROWDED_ALERT = {
+  en: (pid) => `Platform ${pid} is now crowded. Please consider moving to another platform for a more comfortable journey.`,
+  ja: (pid) => `ホーム${pid}が大変混雑しています。快適にご乗車いただくため、他のホームへの移動をご検討ください。`,
+  hi: (pid) => `प्लेटफॉर्म ${pid} अब बहुत भीड़भाड़ है। बेहतर यात्रा के लिए कृपया दूसरे प्लेटफॉर्म पर जाने पर विचार करें।`,
+}
 
 function Seigaiha() {
   return (
@@ -74,10 +86,36 @@ function HeroStrip({ platforms }) {
 
 export default function Dashboard() {
   const t = useT()
+  const { lang } = useI18n()
   const { platforms, log, graphSeries, connected, lastAnnouncement, scanTicket, pushDensity, triggerTick, overrideAction } = useBackend()
-  const [voiceOn, setVoiceOn] = useState(false)
+  const [voiceOn, setVoiceOn] = useState(true)
+  const prevZonesRef = useRef({})
 
-  useAnnouncer(lastAnnouncement, voiceOn)
+  useAnnouncer(lastAnnouncement, lang, voiceOn)
+
+  // Auto-welcome 2 seconds after page loads
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      speakText(WELCOME[lang] || WELCOME.en, lang)
+    }, 2000)
+    return () => clearTimeout(timer)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Detect when any platform first transitions into RED and announce immediately
+  useEffect(() => {
+    if (!voiceOn) return
+    const prev = prevZonesRef.current
+    Object.entries(platforms).forEach(([pid, p]) => {
+      const curZone = p.zone || classifyZone(p.density_pct)
+      if (curZone === 'RED' && prev[pid] && prev[pid] !== 'RED') {
+        const msgFn = CROWDED_ALERT[lang] || CROWDED_ALERT.en
+        speakText(msgFn(pid), lang)
+      }
+    })
+    prevZonesRef.current = Object.fromEntries(
+      Object.entries(platforms).map(([pid, p]) => [pid, p.zone || classifyZone(p.density_pct)])
+    )
+  }, [platforms, voiceOn, lang])
 
   const platformIds = Object.keys(platforms).sort()
 

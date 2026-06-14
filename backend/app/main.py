@@ -65,7 +65,13 @@ async def ws_dashboard(ws: WebSocket):
         return
     try:
         while True:
-            await ws.receive_text()  # keep-alive; client may ping
+            data = await ws.receive_text()
+            if data == "ping":
+                # Client requests a fresh snapshot (e.g., after switching platform tabs)
+                try:
+                    await ws.send_json(state_payload())
+                except Exception:
+                    break
     except WebSocketDisconnect:
         manager.disconnect("dashboard", ws)
 

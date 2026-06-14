@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useWebSocket } from '../hooks/useWebSocket'
 import { useDisplay } from '../hooks/useDisplay'
@@ -12,17 +12,31 @@ function useClock() {
   return t
 }
 
-// Pull this platform's live state from the dashboard channel so the board
-// stays correct even when the agent isn't acting.
+// Pull this platform's live state from the dashboard channel.
+// Resets and requests a fresh snapshot whenever platformId changes.
 function usePlatformState(platformId) {
   const [state, setState] = useState(null)
+  const prevPid = useRef(null)
   const url = import.meta.env.VITE_WS_URL || `ws://${window.location.host}/ws/dashboard`
-  useWebSocket(url, (msg) => {
+
+  const handler = useCallback((msg) => {
     if (msg.type === 'state_update' && Array.isArray(msg.platforms)) {
       const p = msg.platforms.find(p => p.platform_id === platformId)
       if (p) setState(p)
     }
-  })
+  }, [platformId])
+
+  const { send } = useWebSocket(url, handler)
+
+  // When switching platform tabs, clear stale state and ping backend for fresh snapshot.
+  useEffect(() => {
+    if (prevPid.current !== null && prevPid.current !== platformId) {
+      setState(null)
+    }
+    prevPid.current = platformId
+    send('ping')   // backend replies with state_payload so board populates immediately
+  }, [platformId, send])
+
   return state
 }
 

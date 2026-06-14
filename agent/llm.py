@@ -30,6 +30,9 @@ def template_draft(ctx: dict) -> dict:
             "announcement_ja": (
                 f"列車{train}をご利用のお客様へ。安全のため、この列車をしばらく停車いたします。"
             ),
+            "announcement_hi": (
+                f"ट्रेन {train} के यात्रियों का ध्यान — आपकी सुरक्षा के लिए यह ट्रेन कुछ समय के लिए रोकी जा रही है।"
+            ),
             "announcement_en": (
                 f"Attention passengers for Train {train} — this train will be held briefly "
                 f"for your safety and comfort."
@@ -50,6 +53,10 @@ def template_draft(ctx: dict) -> dict:
         "announcement_ja": (
             f"列車{train}をご利用のお客様へ。安全のため、この列車を約{minutes}分停車いたします。"
             f"ホーム{target}の列車はまもなく到着し、ゆとりがございます。"
+        ),
+        "announcement_hi": (
+            f"ट्रेन {train} के यात्रियों का ध्यान — आपकी सुरक्षा के लिए यह ट्रेन लगभग {minutes} मिनट के लिए रोकी जा रही है। "
+            f"प्लेटफ़ॉर्म {target} पर ट्रेन जल्द आ रही है और वहाँ जगह उपलब्ध है।"
         ),
         "announcement_en": (
             f"Attention passengers for Train {train} — this train will be held about "
@@ -75,6 +82,7 @@ def _validate(draft: dict) -> dict:
         if banned in lowered:
             raise ValueError("redirect wording too commanding")
     draft.setdefault("announcement_ja", "")
+    draft.setdefault("announcement_hi", "")
     return draft
 
 
@@ -102,6 +110,7 @@ def template_status_green(ctx: dict) -> dict:
     return {
         "reasoning": "all platforms within safe limits — status announcement",
         "announcement_ja": "現在、すべてのホームにゆとりがございます。通常通り運行しております。",
+        "announcement_hi": "वर्तमान में सभी प्लेटफ़ॉर्म पर जगह उपलब्ध है। सेवा सामान्य रूप से चल रही है।",
         "announcement_en": "All platforms currently have available space. Service is running normally.",
         "source": "rule",
     }
@@ -115,12 +124,14 @@ def template_status_yellow(ctx: dict) -> dict:
         return {
             "reasoning": f"platform {plat_str} is YELLOW — advisory announcement",
             "announcement_ja": f"ホーム{plat_str}は混み合ってきています。お時間に余裕のある方は、他のホームをご利用ください。",
+            "announcement_hi": f"प्लेटफ़ॉर्म {plat_str} पर भीड़ बढ़ रही है। यदि समय हो तो कृपया किसी अन्य प्लेटफ़ॉर्म का उपयोग करें।",
             "announcement_en": f"Platform {plat_str} is filling up. If your schedule allows, please consider using an alternative platform.",
             "source": "rule",
         }
     return {
         "reasoning": f"platforms {plat_str} are YELLOW — advisory announcement",
         "announcement_ja": f"ホーム{plat_str}は混み合ってきています。お時間に余裕のある方は、他のホームをご利用ください。",
+        "announcement_hi": f"प्लेटफ़ॉर्म {plat_str} पर भीड़ बढ़ रही है। यदि समय हो तो कृपया किसी अन्य प्लेटफ़ॉर्म का उपयोग करें।",
         "announcement_en": f"Platforms {plat_str} are filling up. If your schedule allows, please consider using alternative platforms.",
         "source": "rule",
     }
@@ -133,6 +144,7 @@ def template_status_crowded(ctx: dict) -> dict:
     return {
         "reasoning": f"platform{'s' if len(plats) != 1 else ''} {plat_str} RED but no action possible — status announcement",
         "announcement_ja": f"ホーム{plat_str}は大変混雑しています。安全のため、係員の指示に従ってください。",
+        "announcement_hi": f"प्लेटफ़ॉर्म {plat_str} पर बहुत भीड़ है। कृपया अपनी सुरक्षा के लिए कर्मचारियों के निर्देशों का पालन करें।",
         "announcement_en": f"Platform{'s' if len(plats) != 1 else ''} {plat_str} {'are' if len(plats) != 1 else 'is'} very crowded. Please follow staff instructions for your safety.",
         "source": "rule",
     }
@@ -143,6 +155,7 @@ def template_failsafe(ctx: dict) -> dict:
     return {
         "reasoning": "no platform data — fail-safe status announcement",
         "announcement_ja": "現在、システムがデータを待機しています。しばらくお待ちください。",
+        "announcement_hi": "सिस्टम प्लेटफ़ॉर्म डेटा की प्रतीक्षा कर रहा है। कृपया प्रतीक्षा करें।",
         "announcement_en": "The system is waiting for platform data. Please stand by.",
         "source": "rule",
     }

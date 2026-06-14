@@ -10,7 +10,7 @@ export function useBackend() {
   const [log, setLog]             = useState([])
   const [graphSeries, setGraph]   = useState({})
   const [connected, setConnected] = useState(false)
-  const [lastAnnouncement, setLastAnnouncement] = useState(null)  // { text, nonce }
+  const [lastAnnouncement, setLastAnnouncement] = useState(null)  // { texts: {en,ja,hi}, nonce }
 
   const handleMessage = useCallback((msg) => {
     setConnected(true)
@@ -34,12 +34,26 @@ export function useBackend() {
         source:       d.source,
       }
       setLog(prev => [entry, ...prev.filter(e => e.id !== entry.id)].slice(0, MAX_LOG))
-      const en = d.announcement?.en
-      if (en) setLastAnnouncement({ text: en, nonce: Date.now() })
+      const ann = d.announcement
+      if (ann?.en || ann?.ja || ann?.hi) {
+        setLastAnnouncement({ texts: { en: ann.en, ja: ann.ja, hi: ann.hi }, nonce: Date.now() })
+      }
 
     } else if (msg.type === 'status_announcement' && msg.announcement) {
-      const en = msg.announcement?.en
-      if (en) setLastAnnouncement({ text: en, nonce: Date.now() })
+      const ann = msg.announcement
+      if (ann?.en || ann?.ja || ann?.hi) {
+        setLastAnnouncement({ texts: { en: ann.en, ja: ann.ja, hi: ann.hi }, nonce: Date.now() })
+      }
+      // Add every status tick to the log so the operator sees live heartbeats
+      setLog(prev => [{
+        id: `status_${msg.ts || Date.now()}`,
+        ts: msg.ts || new Date().toISOString(),
+        reasoning: msg.reasoning || msg.announcement?.en || '',
+        actions: [],
+        source: msg.source || 'rule',
+        announcement: msg.announcement,
+        isStatus: true,
+      }, ...prev].slice(0, MAX_LOG))
 
     } else if (msg.type === 'override') {
       setLog(prev => prev.map(e => e.id === msg.action_id ? { ...e, overridden: true } : e))

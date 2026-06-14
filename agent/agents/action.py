@@ -51,7 +51,7 @@ def _decision_record(red_p, plan: Plan, d: dict, actions: list[str]) -> dict:
         },
         "actions_taken": actions,
         "source": d.get("source", "rule"),
-        "announcement": {"ja": d.get("announcement_ja", ""), "en": d.get("announcement_en", "")},
+        "announcement": {"en": d.get("announcement_en", ""), "ja": d.get("announcement_ja", ""), "hi": d.get("announcement_hi", "")},
         "operator_override": False,
         "outcome": None,
     }
@@ -126,7 +126,7 @@ def status_announce(snapshot: list[dict], failsafe: bool = False) -> SideEffects
     return SideEffects(
         dashboard_msgs=[{
             "type": "status_announcement",
-            "announcement": {"ja": d.get("announcement_ja", ""), "en": d.get("announcement_en", "")},
+            "announcement": {"en": d.get("announcement_en", ""), "ja": d.get("announcement_ja", ""), "hi": d.get("announcement_hi", "")},
             "reasoning": d.get("reasoning", ""),
             "ts": _now_iso(),
         }]

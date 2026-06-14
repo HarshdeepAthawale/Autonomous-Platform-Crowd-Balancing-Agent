@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useI18n } from '../lib/i18n/context'
+import { useI18n, LANGS } from '../lib/i18n/context'
 
 function GlobeIcon({ size = 16 }) {
   return (
@@ -28,14 +28,8 @@ function ChevronIcon({ open }) {
   )
 }
 
-const LANGS = [
-  { code: 'en', label: 'English', short: 'EN' },
-  { code: 'ja', label: '日本語', short: 'JA' },
-  { code: 'hi', label: 'हिन्दी', short: 'HI' },
-]
-
 export default function LanguageSwitcher() {
-  const { lang, setLang } = useI18n()
+  const { lang, setLang, translating } = useI18n()
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
@@ -67,7 +61,7 @@ export default function LanguageSwitcher() {
         onMouseOut={e => { e.currentTarget.style.borderColor = '#E7DECE'; e.currentTarget.style.background = 'transparent' }}
       >
         <GlobeIcon size={14} />
-        <span>{current.short}</span>
+        <span>{translating ? '…' : current.short}</span>
         <ChevronIcon open={open} />
       </button>
 

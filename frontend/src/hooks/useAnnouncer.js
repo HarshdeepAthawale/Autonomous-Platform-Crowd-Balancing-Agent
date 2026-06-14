@@ -1,27 +1,99 @@
 import { useEffect, useRef } from 'react'
 
-// Speaks the agent's English announcement via the browser SpeechSynthesis API.
-// No API key. `payload` is { text, nonce } — a fresh nonce triggers a new utterance
-// even if the text is identical to the last one (fires on every crowded tick).
-export function useAnnouncer(payload, enabled) {
+// Language → BCP-47 tag used to select the best SpeechSynthesis voice.
+const VOICE_LANG = {
+  en: ['en-GB', 'en-US', 'en'],
+  ja: ['ja-JP', 'ja'],
+  hi: ['hi-IN', 'hi'],
+}
+
+function pickVoice(voices, lang) {
+  const prefs = VOICE_LANG[lang] || VOICE_LANG.en
+  for (const pref of prefs) {
+    const match = voices.find(v => {
+      const vLang = v.lang.toLowerCase()
+      // Never resolve to an English voice when the target language is non-English
+      if (lang !== 'en' && vLang.startsWith('en')) return false
+      return vLang.startsWith(pref.toLowerCase())
+    })
+    if (match) return match
+  }
+  return null
+}
+
+// Speak arbitrary text immediately. Used for welcome messages and zone-change alerts.
+export function speakText(text, lang) {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
+  if (!text) return
+  const u = new SpeechSynthesisUtterance(text)
+  u.rate   = 0.92
+  u.pitch  = 1.0
+  u.volume = 1.0
+  u.lang   = (VOICE_LANG[lang] || VOICE_LANG.en)[0]
+  const trySpeak = () => {
+    const voices = window.speechSynthesis.getVoices()
+    const voice  = pickVoice(voices, lang)
+    if (voice) u.voice = voice
+    window.speechSynthesis.cancel()
+    window.speechSynthesis.speak(u)
+  }
+  const voices = window.speechSynthesis.getVoices()
+  if (voices.length) trySpeak()
+  else {
+    window.speechSynthesis.onvoiceschanged = () => {
+      window.speechSynthesis.onvoiceschanged = null
+      trySpeak()
+    }
+  }
+}
+
+/**
+ * Speaks an announcement via the browser SpeechSynthesis API.
+ *
+ * payload — { texts: { en, ja, hi }, nonce } from useBackend.
+ * lang    — current UI language code ('en' | 'ja' | 'hi').
+ * enabled — voice toggle state.
+ *
+ * A fresh nonce triggers a new utterance even if the text is identical.
+ */
+export function useAnnouncer(payload, lang, enabled) {
   const lastNonce = useRef(null)
 
   useEffect(() => {
-    if (!enabled || !payload?.text) return
+    if (!enabled || !payload?.texts) return
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
     if (payload.nonce === lastNonce.current) return
     lastNonce.current = payload.nonce
 
-    const u = new SpeechSynthesisUtterance(payload.text)
-    u.rate = 0.95          // calm, measured station-announcement pace
-    u.pitch = 1.0
+    // Prefer the current UI language; fall back to English if that text is missing.
+    const text = payload.texts[lang] || payload.texts.en
+    if (!text) return
+
+    const u = new SpeechSynthesisUtterance(text)
+    u.rate   = 0.92   // calm, station-announcement pace
+    u.pitch  = 1.0
     u.volume = 1.0
+    u.lang   = (VOICE_LANG[lang] || VOICE_LANG.en)[0]
+
+    // voiceschanged may not have fired yet — try both sync and async paths.
+    const trySpeak = () => {
+      const voices = window.speechSynthesis.getVoices()
+      if (voices.length) {
+        const voice = pickVoice(voices, lang)
+        if (voice) u.voice = voice
+      }
+      window.speechSynthesis.cancel()
+      window.speechSynthesis.speak(u)
+    }
 
     const voices = window.speechSynthesis.getVoices()
-    const en = voices.find(v => /en-GB/i.test(v.lang)) || voices.find(v => /^en/i.test(v.lang))
-    if (en) u.voice = en
-
-    window.speechSynthesis.cancel()
-    window.speechSynthesis.speak(u)
-  }, [payload, enabled])
+    if (voices.length) {
+      trySpeak()
+    } else {
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.onvoiceschanged = null
+        trySpeak()
+      }
+    }
+  }, [payload, lang, enabled])
 }
