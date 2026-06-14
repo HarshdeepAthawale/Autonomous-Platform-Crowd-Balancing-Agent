@@ -3,7 +3,7 @@
 // cached in localStorage so repeat language switches are instant. The Groq key
 // stays server-side. (Filename kept for import compatibility.)
 
-const CACHE_VERSION = 'v2'   // bumped: invalidates any old Gemini-era cache
+const CACHE_VERSION = 'v3'   // bumped: invalidates any stale Gemini/partial cache
 
 /**
  * Translate the full English string map to targetLang via the backend.

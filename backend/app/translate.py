@@ -4,6 +4,7 @@ English is the single source of truth; Japanese/Hindi are generated on demand by
 Groq (Llama 3.3) and cached in-process. Used by both the UI-string endpoint and
 the TTS endpoint so every non-English string is AI-translated, never hardcoded.
 """
+import hashlib
 import json
 
 import httpx
@@ -15,7 +16,9 @@ MODEL = "llama-3.3-70b-versatile"
 _LANG = {"ja": "Japanese", "hi": "Hindi"}
 
 _text_cache: dict[tuple[str, str], str] = {}
-_map_cache: dict[str, dict] = {}
+# keyed by (lang, hash of the exact input map) so a partial request can't return
+# a stale full map (or vice-versa)
+_map_cache: dict[tuple[str, str], dict] = {}
 
 
 def _chat(prompt: str, max_tokens: int, json_mode: bool = False) -> str:
@@ -64,8 +67,10 @@ def translate_map(strings: dict, lang: str) -> dict:
     """Translate a whole UI string map EN -> lang in one call (cached per language)."""
     if lang == "en":
         return strings
-    if lang in _map_cache:
-        return _map_cache[lang]
+    digest = hashlib.sha1(json.dumps(strings, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    cache_key = (lang, digest)
+    if cache_key in _map_cache:
+        return _map_cache[cache_key]
     name = _LANG.get(lang, lang)
     prompt = (
         f"Translate the JSON string VALUES from English to {name} for a railway-station UI. "
@@ -80,5 +85,5 @@ def translate_map(strings: dict, lang: str) -> dict:
         merged = {**strings, **json.loads(raw)}
     except Exception:
         return strings  # fall back to English UI rather than breaking
-    _map_cache[lang] = merged
+    _map_cache[cache_key] = merged
     return merged
