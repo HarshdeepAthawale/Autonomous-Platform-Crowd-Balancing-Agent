@@ -1,0 +1,95 @@
+%%{init: {'theme': 'base', 'themeVariables': {
+  'fontFamily': 'Inter, system-ui, sans-serif',
+  'fontSize': '14px',
+  'primaryColor': '#F7F4ED',
+  'lineColor': '#2E6F95',
+  'clusterBkg': '#F0EDE6',
+  'clusterBorder': '#1B2A4A'
+}}}%%
+flowchart TB
+    classDef passenger fill:#F7F4ED,stroke:#1B2A4A,stroke-width:2px,color:#1A1A1A
+    classDef perceive fill:#E8F0F5,stroke:#2E6F95,stroke-width:2px,color:#1B2A4A
+    classDef decide fill:#EDE8F5,stroke:#5C4A8A,stroke-width:2px,color:#1B2A4A
+    classDef act fill:#E8F4E0,stroke:#5C8A3A,stroke-width:2px,color:#1A1A1A
+    classDef safe fill:#FFF0EE,stroke:#D7483B,stroke-width:2px,color:#1A1A1A
+    classDef green fill:#E8F4E0,stroke:#5C8A3A,stroke-width:2px,color:#1A1A1A
+    classDef gate fill:#FFF8E8,stroke:#E8A33D,stroke-width:2px,color:#1A1A1A
+
+    START(["Passenger arrives at station"]) --> SCAN
+
+    subgraph JOURNEY[" PASSENGER JOURNEY  "]
+        direction TB
+        SCAN["① Scan ticket at gate<br/>platform + train ID only · no PII"]
+        WAIT["② Wait on platform<br/>sees live signage"]
+        GUIDE["③ Receives calm guidance<br/>suggestion — never command"]
+    end
+
+    subgraph PERCEIVE[" PERCEIVE — continuous  "]
+        direction TB
+        ARR["Arrival event logged<br/>+1 to platform counter"]
+        DENS["CV estimates density %<br/>rolling average + trend"]
+        FUSE["Fused live state<br/>zone · ETA · arrival rate"]
+        ARR --> FUSE
+        DENS --> FUSE
+    end
+
+    SCAN --> ARR
+    SCAN -.->|"camera feed"| DENS
+
+    subgraph AGENT_LOOP[" AGENT LOOP — every 20s  "]
+        direction TB
+        SNAP["GET /api/state snapshot"]
+        PAR["Parallel analysis"]
+        CR["Crowd: RED + rising?"]
+        TR["Train: holdable?"]
+        SA["Safety: zones + fail-safe"]
+        PAR --> CR & TR & SA
+        DEC{"Decision Agent<br/>best safe alternative?"}
+        CHK{"Safety gate<br/>validate_plan()"}
+        CR & TR & SA --> DEC
+        DEC --> CHK
+        CHK -->|"reject / fail-safe"| NOACT["No action · log state"]
+        CHK -->|"approved plan"| EXEC["Action Agent executes"]
+    end
+
+    FUSE --> SNAP
+    SNAP --> PAR
+
+    subgraph ACT[" ACT — on infrastructure  "]
+        direction TB
+        H1["Hold train +10 min max<br/>Train 12045 · Platform A"]
+        H2["Redirect suggestion<br/>Platform B has spare capacity"]
+        H3["Signage update<br/>A → RED · B → GREEN"]
+        H4["Calm announcement<br/>日本語 + English"]
+        H5["Dashboard log<br/>plain-English reasoning"]
+    end
+
+    EXEC --> H1 & H2 & H3 & H4 & H5
+    H1 & H2 & H3 & H4 --> WAIT
+    H5 --> OP["Control room sees all<br/>override if needed"]
+    H5 --> GUIDE
+
+    subgraph RESULT[" OUTCOME  "]
+        direction LR
+        RA["Platform A<br/>92% RED → 55%<br/>below Yellow"]
+        RB["Platform B<br/>stays GREEN ~35%<br/>absorbs flow gently"]
+    end
+
+    GUIDE --> RESULT
+
+    subgraph ZONES[" ZONE THRESHOLDS  "]
+        direction LR
+        ZG["GREEN &lt; 60%"]
+        ZY["YELLOW 60–85%"]
+        ZR["RED &gt; 85%"]
+    end
+
+    class START,SCAN,WAIT,GUIDE passenger
+    class ARR,DENS,FUSE,SNAP perceive
+    class PAR,CR,TR,SA,DEC,CHK,EXEC decide
+    class H1,H2,H3,H4,H5,RA,RB act
+    class NOACT safe
+    class ZG green
+    class ZY gate
+    class ZR safe
+    class OP passenger

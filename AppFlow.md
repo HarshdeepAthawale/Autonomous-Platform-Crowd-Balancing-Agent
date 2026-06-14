@@ -7,6 +7,10 @@
 
 ## 1. High-Level Flow
 
+![Application Flow](../docs/diagrams/app-flow.png)
+
+*PNG/SVG sources in [`docs/diagrams/`](../docs/diagrams/) · re-render with `render.sh`*
+
 ```
 Passenger ──scan──▶ Gate ──event──▶ Backend ──┐
                                               ├──▶ Live State ──▶ Agent Loop ──▶ Actions ──▶ Passengers + Operator
@@ -15,6 +19,10 @@ Camera ──frames──▶ YOLOv8 ──density──▶ Backend ┘          
 
 The system runs two continuous input streams (ticket arrivals + CV density) into a
 fused live state, which the agent polls on every tick and acts upon.
+
+### System Architecture (component view)
+
+![System Architecture](../docs/diagrams/architecture.png)
 
 ---
 

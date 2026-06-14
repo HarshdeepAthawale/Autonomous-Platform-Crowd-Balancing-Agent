@@ -59,6 +59,10 @@ A **layered hierarchical multi-agent system** sits at the core: a Station Superv
 out to three parallel agents (Crowd / Train / Safety), a Decision Agent synthesizes their
 reports into a safety-validated plan, and an Action Agent executes it.
 
+![System Architecture](docs/diagrams/architecture.png)
+
+*Source: [`docs/diagrams/architecture.mmd`](docs/diagrams/architecture.mmd) · re-render with `docs/diagrams/render.sh`*
+
 ```mermaid
 flowchart TB
     subgraph Perception
@@ -105,6 +109,17 @@ oversight (not control). The **Safety Agent's gate is authoritative** — the LL
 produce an unsafe action.
 
 **Zones:** Green `<60%` · Yellow `60–85%` · Red `>85%`
+
+---
+
+## Application Flow
+
+End-to-end journey from passenger scan through perception, the 20s agent loop, infrastructure
+actions, and the rebalanced outcome (worked example: Platform A 92% RED → 55%).
+
+![Application Flow](docs/diagrams/app-flow.png)
+
+*Source: [`docs/diagrams/app-flow.mmd`](docs/diagrams/app-flow.mmd) · full narrative in [AppFlow.md](AppFlow.md)*
 
 ---
 
@@ -171,6 +186,7 @@ Full planning suite lives in this repo:
 | [PRD.md](PRD.md) | Problem, goals, personas, requirements (FR/NFR), metrics, scope, risks |
 | [TechSpecifications.md](TechSpecifications.md) | Architecture, stack, agent loop + pseudocode, APIs, latency targets |
 | [AppFlow.md](AppFlow.md) | User journeys, decision loop, worked example, sequence diagrams |
+| [docs/diagrams/](docs/diagrams/) | Architecture + app-flow PNG/SVG (wa-modern palette) |
 | [Design.md](Design.md) | Wa-modern UI/UX, traditional Japanese color palette, bilingual wireframes |
 | [Schema.md](Schema.md) | Privacy-first data model, SQL view, WebSocket schemas, retention |
 | [ImplementationPlan.md](ImplementationPlan.md) | 5-phase build plan with exit criteria |

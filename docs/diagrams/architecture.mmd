@@ -1,0 +1,69 @@
+%%{init: {'theme': 'base', 'themeVariables': {
+  'fontFamily': 'Inter, system-ui, sans-serif',
+  'fontSize': '14px',
+  'primaryColor': '#F7F4ED',
+  'primaryTextColor': '#1A1A1A',
+  'lineColor': '#2E6F95',
+  'clusterBkg': '#F0EDE6',
+  'clusterBorder': '#1B2A4A'
+}}}%%
+flowchart TB
+    classDef perception fill:#E8F0F5,stroke:#2E6F95,stroke-width:2px,color:#1B2A4A
+    classDef backend fill:#F7F4ED,stroke:#1B2A4A,stroke-width:2px,color:#1A1A1A
+    classDef agent fill:#EDE8F5,stroke:#5C4A8A,stroke-width:2px,color:#1B2A4A
+    classDef action fill:#E8F4E0,stroke:#5C8A3A,stroke-width:2px,color:#1A1A1A
+    classDef store fill:#FFF8E8,stroke:#E8A33D,stroke-width:2px,color:#1A1A1A
+    classDef ws fill:#E0F0F8,stroke:#2E6F95,stroke-width:2px,color:#1B2A4A
+
+    subgraph PERCEPTION[" ① PERCEPTION — gather signals  "]
+        direction TB
+        SCAN["🎫 Gate Scanner<br/><b>POST /api/scan</b><br/>platform_id + train_id only"]
+        CV["📷 CV Pipeline<br/><b>POST /api/density</b><br/>YOLOv8 or Synthetic"]
+        SCHED["🚆 Mock Train Schedule<br/>ETAs · hold state"]
+        SCAN --> STORE
+        CV --> STORE
+        STORE[("In-Memory Store<br/>counts · % · TTL expiry")]
+    end
+
+    subgraph BACKEND[" ② BACKEND — FastAPI  "]
+        direction TB
+        FUSION["Fusion Layer<br/><b>build_states()</b><br/>density + arrivals + schedule"]
+        LOOP["Agent Loop<br/><b>every 20s</b><br/>+ POST /api/agent/tick"]
+        WS["WebSocket Hub<br/><b>/ws/dashboard</b><br/><b>/ws/display/:id</b>"]
+        STORE --> FUSION
+        SCHED --> FUSION
+        FUSION --> LOOP
+        LOOP --> WS
+    end
+
+    subgraph AGENT[" ③ DECISION — Hierarchical Multi-Agent  "]
+        direction TB
+        SUP["🎯 Station Supervisor"]
+        C["👥 Crowd Agent<br/>RED + rising"]
+        T["🚆 Train Agent<br/>ETA + holdability"]
+        S["🛡️ Safety Agent<br/>zones · fail-safe · gate"]
+        D["🧠 Decision Agent<br/>synthesize → Plan"]
+        A["⚡ Action Agent<br/>execute + wording"]
+        SUP --> C & T & S
+        C & T & S --> D
+        D -->|"validate_plan()"| A
+    end
+
+    subgraph ACTIONS[" ④ ACTION — infrastructure only  "]
+        direction LR
+        HOLD["Hold Train<br/>POST /scheduling/hold<br/>capped +10 min"]
+        SIGN["Signage + Redirect<br/>WS → displays<br/>suggestion only"]
+        LOG["Decision Log<br/>plain-English reasoning"]
+        ANN["Announcement<br/>JA + EN · calm tone"]
+    end
+
+    LOOP --> SUP
+    A --> HOLD & SIGN & LOG & ANN
+    HOLD & SIGN & LOG --> WS
+
+    class SCAN,CV,SCHED perception
+    class FUSION,LOOP backend
+    class STORE store
+    class WS ws
+    class SUP,C,T,S,D,A agent
+    class HOLD,SIGN,LOG,ANN action
