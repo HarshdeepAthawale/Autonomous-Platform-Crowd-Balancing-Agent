@@ -17,7 +17,8 @@ export default function GateDisplay() {
   const [, setRedirect]   = useState(null)
   const clock = useClock()
 
-  const url = import.meta.env.VITE_WS_URL || `ws://${window.location.host}/ws/dashboard`
+  const url = import.meta.env.VITE_WS_URL ||
+    `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws/dashboard`
   useWebSocket(url, (msg) => {
     if (msg.type === 'state_update' && Array.isArray(msg.platforms)) {
       setPlatforms(prev => {

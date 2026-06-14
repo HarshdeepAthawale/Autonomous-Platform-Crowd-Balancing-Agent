@@ -17,7 +17,8 @@ function useClock() {
 function usePlatformState(platformId) {
   const [state, setState] = useState(null)
   const prevPid = useRef(null)
-  const url = import.meta.env.VITE_WS_URL || `ws://${window.location.host}/ws/dashboard`
+  const url = import.meta.env.VITE_WS_URL ||
+    `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws/dashboard`
 
   const handler = useCallback((msg) => {
     if (msg.type === 'state_update' && Array.isArray(msg.platforms)) {

@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react'
 import { useWebSocket } from './useWebSocket'
 
-const WS_URL = import.meta.env.VITE_WS_URL || `ws://${window.location.host}/ws/dashboard`
+const WS_URL = import.meta.env.VITE_WS_URL ||
+  `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws/dashboard`
 const MAX_LOG   = 50
 const MAX_GRAPH = 120
 

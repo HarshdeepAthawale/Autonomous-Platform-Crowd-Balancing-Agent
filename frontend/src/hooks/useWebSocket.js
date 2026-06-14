@@ -13,7 +13,14 @@ export function useWebSocket(url, onMessage) {
         ws.current?.readyState === WebSocket.CONNECTING) return
 
     clearTimeout(retryRef.current)
-    const socket = new WebSocket(url)
+    let socket
+    try {
+      socket = new WebSocket(url)
+    } catch {
+      // e.g. mixed-content (ws:// on an https page) — never crash render; retry later.
+      retryRef.current = setTimeout(connect, 5000)
+      return
+    }
     ws.current = socket
 
     socket.onmessage = (e) => {
