@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import { StationMark } from '../lib/icons'
+import { StationMark, SpeakerOnIcon, SpeakerOffIcon } from '../lib/icons'
 
-export default function StatusBar({ connected, overrideMode }) {
+export default function StatusBar({ connected, overrideMode, voiceOn, onToggleVoice }) {
   const [time, setTime] = useState(new Date())
   useEffect(() => {
     const t = setInterval(() => setTime(new Date()), 1000)
@@ -49,6 +49,25 @@ export default function StatusBar({ connected, overrideMode }) {
 
       {/* Right cluster */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+        {onToggleVoice && (
+          <button
+            onClick={onToggleVoice}
+            title={voiceOn ? 'Voice announcements on' : 'Voice announcements off'}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: voiceOn ? '#EDF3E4' : 'transparent',
+              border: `1px solid ${voiceOn ? '#BCD49E' : '#E7DECE'}`,
+              color: voiceOn ? '#5C8A3A' : '#6E6356',
+              padding: '4px 10px', borderRadius: 9999, cursor: 'pointer',
+              fontSize: 11, fontWeight: 600, letterSpacing: '0.04em',
+              transition: 'all 0.15s',
+            }}
+          >
+            {voiceOn ? <SpeakerOnIcon size={14} /> : <SpeakerOffIcon size={14} />}
+            <span>{voiceOn ? 'Voice On' : 'Voice'}</span>
+          </button>
+        )}
+
         {overrideMode ? (
           <Pill bg="#FBF1DA" fg="#B45309" border="#E8C97A">⚠ Override Mode</Pill>
         ) : (

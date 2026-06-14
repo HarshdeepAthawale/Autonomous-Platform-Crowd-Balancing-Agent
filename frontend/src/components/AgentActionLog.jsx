@@ -1,18 +1,28 @@
 import { AgentIcon } from '../lib/icons'
 
-const ACTION_CHIP = {
-  hold:     { color: '#B8352C', lightBg: '#F9EAE6', label: 'Hold' },
-  redirect: { color: '#2E6F95', lightBg: '#EAF1F6', label: 'Redirect' },
-  announce: { color: '#5C8A3A', lightBg: '#EDF3E4', label: 'Announce' },
-  log:      { color: '#6E6356', lightBg: '#F4EEE3', label: 'Log' },
+const CHIP_STYLE = {
+  HOLD:               { color: '#B8352C', lightBg: '#F9EAE6', label: 'Hold' },
+  REDIRECT_SUGGESTION:{ color: '#2E6F95', lightBg: '#EAF1F6', label: 'Redirect' },
+  ANNOUNCE:           { color: '#5C8A3A', lightBg: '#EDF3E4', label: 'Announce' },
+  SIGNAGE:            { color: '#9A7B1F', lightBg: '#FBF1DA', label: 'Signage' },
+  OPERATOR_ALERT:     { color: '#B8352C', lightBg: '#F9EAE6', label: 'Alert' },
+  LOG:                { color: '#6E6356', lightBg: '#F4EEE3', label: 'Log' },
 }
 
-function detectChip(entry) {
-  const t = (entry.action_type || entry.type || '').toLowerCase()
-  if (t.includes('hold'))     return ACTION_CHIP.hold
-  if (t.includes('redirect')) return ACTION_CHIP.redirect
-  if (t.includes('announce')) return ACTION_CHIP.announce
-  return ACTION_CHIP.log
+// Order chips by importance and keep it readable
+const CHIP_ORDER = ['HOLD', 'REDIRECT_SUGGESTION', 'ANNOUNCE', 'SIGNAGE', 'OPERATOR_ALERT']
+
+function chipsFor(entry) {
+  const actions = Array.isArray(entry.actions) ? entry.actions : []
+  const ordered = CHIP_ORDER.filter(a => actions.includes(a))
+  const list = ordered.length ? ordered : ['LOG']
+  return list.map(a => CHIP_STYLE[a] || CHIP_STYLE.LOG)
+}
+
+// Primary action drives the left-border accent
+function accentColor(entry) {
+  const c = chipsFor(entry)[0]
+  return c.color
 }
 
 function formatTs(ts) {
@@ -57,14 +67,14 @@ export default function AgentActionLog({ log, onOverride }) {
           </div>
         ) : (
           log.map((entry) => {
-            const chip = detectChip(entry)
+            const chips = chipsFor(entry)
             return (
               <div
                 key={entry.id}
                 className="slide-in"
                 style={{
                   borderBottom: '1px solid #EFE7D9',
-                  borderLeft: `3px solid ${chip.color}`,
+                  borderLeft: `3px solid ${accentColor(entry)}`,
                   padding: '14px 24px',
                   display: 'flex', alignItems: 'flex-start', gap: 14,
                 }}
@@ -74,14 +84,18 @@ export default function AgentActionLog({ log, onOverride }) {
                 </span>
 
                 <div style={{ flex: 1 }}>
-                  <span style={{
-                    backgroundColor: chip.lightBg, color: chip.color,
-                    fontSize: 10, fontWeight: 700, padding: '2px 8px',
-                    borderRadius: 9999, letterSpacing: '0.06em',
-                    display: 'inline-block', marginBottom: 6, textTransform: 'uppercase',
-                  }}>
-                    {chip.label}
-                  </span>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 6 }}>
+                    {chips.map((chip, i) => (
+                      <span key={i} style={{
+                        backgroundColor: chip.lightBg, color: chip.color,
+                        fontSize: 10, fontWeight: 700, padding: '2px 8px',
+                        borderRadius: 9999, letterSpacing: '0.06em',
+                        display: 'inline-block', textTransform: 'uppercase',
+                      }}>
+                        {chip.label}
+                      </span>
+                    ))}
+                  </div>
                   <p style={{ color: '#211C15', fontSize: 13, margin: 0, lineHeight: 1.55 }}>
                     {entry.reasoning || entry.message || entry.text || JSON.stringify(entry)}
                   </p>

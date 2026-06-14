@@ -10,18 +10,34 @@ export function useBackend() {
   const [log, setLog]             = useState([])
   const [graphSeries, setGraph]   = useState({})
   const [connected, setConnected] = useState(false)
+  const [lastAnnouncement, setLastAnnouncement] = useState(null)  // { text, nonce }
   const wsRef = useRef(null)
 
   const handleMessage = useCallback((msg) => {
     setConnected(true)
+
     if (msg.type === 'state_update' && Array.isArray(msg.platforms)) {
       setPlatforms(prev => {
         const next = { ...prev }
         msg.platforms.forEach(p => { next[p.platform_id] = p })
         return next
       })
-    } else if (msg.type === 'agent_action') {
-      setLog(prev => [{ ...msg, id: Date.now() + Math.random() }, ...prev].slice(0, MAX_LOG))
+
+    } else if (msg.type === 'agent_action' && msg.decision) {
+      const d = msg.decision
+      const entry = {
+        id:           d.decision_id,
+        ts:           d.ts,
+        reasoning:    d.reasoning,
+        actions:      d.actions_taken || [],
+        plan:         d.plan,
+        announcement: d.announcement,
+        source:       d.source,
+      }
+      setLog(prev => [entry, ...prev.filter(e => e.id !== entry.id)].slice(0, MAX_LOG))
+      const en = d.announcement?.en
+      if (en) setLastAnnouncement({ text: en, nonce: Date.now() })
+
     } else if (msg.type === 'graph_point') {
       setGraph(prev => {
         const series = prev[msg.platform_id] ?? []
@@ -53,5 +69,5 @@ export function useBackend() {
     })
   }, [])
 
-  return { platforms, log, graphSeries, connected, scanTicket, triggerTick, overrideAction }
+  return { platforms, log, graphSeries, connected, lastAnnouncement, scanTicket, triggerTick, overrideAction }
 }

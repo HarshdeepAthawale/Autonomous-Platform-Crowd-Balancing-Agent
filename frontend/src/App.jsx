@@ -1,145 +1,19 @@
-import StatusBar      from './components/StatusBar'
-import PlatformCard   from './components/PlatformCard'
-import DensityChart   from './components/DensityChart'
-import AgentActionLog from './components/AgentActionLog'
-import ScanPage       from './components/ScanPage'
-import AgentControls  from './components/AgentControls'
-import { useBackend } from './hooks/useBackend'
-import { classifyZone, ZONE_COLOR } from './lib/zone'
+import { Routes, Route } from 'react-router-dom'
+import Dashboard    from './pages/Dashboard'
+import SignageBoard from './pages/SignageBoard'
+import GateDisplay  from './pages/GateDisplay'
 import './index.css'
 
-function Seigaiha() {
-  // 青海波 — concentric-arc wave pattern, faint warm Hanada tone
-  return (
-    <svg
-      width="100%" height="100%"
-      style={{ position: 'absolute', inset: 0, opacity: 0.10, pointerEvents: 'none' }}
-      preserveAspectRatio="xMidYMid slice"
-      aria-hidden="true"
-    >
-      <defs>
-        <pattern id="seigaiha" x="0" y="0" width="56" height="28" patternUnits="userSpaceOnUse">
-          <g fill="none" stroke="#2E6F95" strokeWidth="1.4">
-            <path d="M-28,28 a28,28 0 0,1 56,0" />
-            <path d="M-28,28 a20,20 0 0,1 40,0" transform="translate(0,0)" />
-            <path d="M-28,28 a12,12 0 0,1 24,0" />
-            <path d="M28,28 a28,28 0 0,1 56,0" />
-            <path d="M28,28 a20,20 0 0,1 40,0" />
-            <path d="M28,28 a12,12 0 0,1 24,0" />
-            <path d="M0,0 a28,28 0 0,1 56,0" transform="translate(-28,0)" />
-          </g>
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#seigaiha)" />
-    </svg>
-  )
-}
-
-function ZoneTile({ count, color, label }) {
-  return (
-    <div style={{
-      backgroundColor: 'rgba(253,251,246,0.7)',
-      border: `1px solid ${color}33`,
-      borderRadius: 12,
-      padding: '10px 18px',
-      textAlign: 'center',
-      minWidth: 70,
-    }}>
-      <p style={{ fontFamily: 'var(--font-display)', color, fontSize: 26, fontWeight: 700, margin: '0 0 1px', letterSpacing: '-0.02em' }}>{count}</p>
-      <p style={{ color, fontSize: 10, fontWeight: 600, margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</p>
-    </div>
-  )
-}
-
-function HeroStrip({ platforms }) {
-  const states   = Object.values(platforms)
-  const total    = states.length
-  const redCount = states.filter(s => classifyZone(s.density_pct) === 'RED').length
-  const yelCount = states.filter(s => classifyZone(s.density_pct) === 'YELLOW').length
-  const grnCount = states.filter(s => classifyZone(s.density_pct) === 'GREEN').length
-
-  return (
-    <div style={{
-      position: 'relative',
-      overflow: 'hidden',
-      background: 'linear-gradient(135deg, #F7F1E7 0%, #ECF1F6 55%, #DEEAF4 100%)',
-      borderBottom: '1px solid #E7DECE',
-    }}>
-      <Seigaiha />
-      <div style={{
-        position: 'relative', zIndex: 1,
-        maxWidth: 1280, margin: '0 auto', padding: '36px 32px 32px',
-        display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24,
-      }}>
-        <div>
-          <p style={{ color: '#6E6356', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.18em', margin: '0 0 8px' }}>
-            Station Overview
-          </p>
-          <h1 style={{ fontFamily: 'var(--font-display)', color: '#211C15', fontSize: 38, fontWeight: 900, margin: '0 0 6px', letterSpacing: '0.01em', lineHeight: 1.05 }}>
-            Platform Status
-          </h1>
-          <p style={{ color: '#6E6356', fontSize: 13, margin: 0 }}>
-            {total > 0
-              ? `${total} platform${total !== 1 ? 's' : ''} monitored · autonomous balancing active`
-              : 'Waiting for platform data…'}
-          </p>
-        </div>
-
-        {total > 0 && (
-          <div style={{ display: 'flex', gap: 10 }}>
-            {redCount > 0 && <ZoneTile count={redCount} color={ZONE_COLOR.RED.bg}    label="Crowded" />}
-            {yelCount > 0 && <ZoneTile count={yelCount} color={ZONE_COLOR.YELLOW.bg} label="Filling" />}
-            {grnCount > 0 && <ZoneTile count={grnCount} color={ZONE_COLOR.GREEN.bg}  label="Available" />}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
 export default function App() {
-  const { platforms, log, graphSeries, connected, scanTicket, triggerTick, overrideAction } = useBackend()
-
-  const platformIds = Object.keys(platforms).sort()
-  const hasOverride = log.some(e => (e.type || '').includes('override'))
-
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F4EEE3', position: 'relative' }}>
       <div className="washi-grain" />
-
       <div style={{ position: 'relative', zIndex: 2 }}>
-        <StatusBar connected={connected} overrideMode={hasOverride} />
-        <HeroStrip platforms={platforms} />
-
-        <main style={{ maxWidth: 1280, margin: '0 auto', padding: '28px 32px 56px' }}>
-
-          {/* Platform cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 18, marginBottom: 18 }}>
-            {platformIds.length > 0
-              ? platformIds.map(pid => <PlatformCard key={pid} state={platforms[pid]} />)
-              : ['A', 'B'].map(pid => <PlatformCard key={pid} state={null} />)
-            }
-          </div>
-
-          {/* Chart */}
-          <div style={{ marginBottom: 18 }}>
-            <DensityChart graphSeries={graphSeries} />
-          </div>
-
-          {/* Log + sidebar */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 18, alignItems: 'start' }}>
-            <AgentActionLog log={log} onOverride={overrideAction} />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <ScanPage scanTicket={scanTicket} platforms={platforms} />
-              <AgentControls triggerTick={triggerTick} />
-            </div>
-          </div>
-
-          {/* Footer */}
-          <p style={{ color: '#B9AE9B', fontSize: 11, textAlign: 'center', marginTop: 44, marginBottom: 0 }}>
-            Privacy: platform ID + train ID only · no PII · no camera frames stored · data expires ≤1h after train departure
-          </p>
-        </main>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/display/gate" element={<GateDisplay />} />
+          <Route path="/display/:platformId" element={<SignageBoard />} />
+        </Routes>
       </div>
     </div>
   )

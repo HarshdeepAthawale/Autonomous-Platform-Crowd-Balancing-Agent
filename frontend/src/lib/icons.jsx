@@ -70,6 +70,24 @@ export function PlayIcon({ size = 13, color = 'currentColor' }) {
   )
 }
 
+export function SpeakerOnIcon({ size = 16, color = 'currentColor' }) {
+  return (
+    <svg {...base(size)} style={{ color }}>
+      <path d="M4 9v6h4l5 4V5L8 9H4z" />
+      <path d="M16 9a3 3 0 0 1 0 6M18.5 7a6 6 0 0 1 0 10" />
+    </svg>
+  )
+}
+
+export function SpeakerOffIcon({ size = 16, color = 'currentColor' }) {
+  return (
+    <svg {...base(size)} style={{ color }}>
+      <path d="M4 9v6h4l5 4V5L8 9H4z" />
+      <path d="M22 9l-5 6M17 9l5 6" />
+    </svg>
+  )
+}
+
 export function PeopleIcon({ size = 14, color = 'currentColor' }) {
   return (
     <svg {...base(size)} style={{ color }}>

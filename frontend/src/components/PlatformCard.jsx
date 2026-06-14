@@ -21,7 +21,7 @@ function StatRow({ icon, label, value, accent }) {
 export default function PlatformCard({ state }) {
   if (!state) return <SkeletonCard />
 
-  const { platform_id, density_pct = 0, arrival_count = 0, zone, trend, next_train } = state
+  const { platform_id, density_pct = 0, count = 0, zone, trend, next_train } = state
   const zoneKey = zone ?? classifyZone(density_pct)
   const zc      = ZONE_COLOR[zoneKey] ?? ZONE_COLOR.GREEN
   const isHeld  = next_train?.held === true
@@ -69,7 +69,7 @@ export default function PlatformCard({ state }) {
           <DensityGauge densityPct={density_pct} zoneColor={zc.bg} label={zc.label} trend={trend} />
 
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <StatRow icon={<PeopleIcon size={14} />} label="People" value={arrival_count} />
+            <StatRow icon={<PeopleIcon size={14} />} label="People" value={count} />
             <div style={{ height: 1, backgroundColor: '#EFE7D9' }} />
             {next_train ? (
               <>

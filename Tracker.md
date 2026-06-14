@@ -15,7 +15,7 @@
 | 1 | Foundation & Backend Skeleton | ✅ Done | 8/8 · 18 tests pass |
 | 2 | Computer Vision Density Pipeline | ✅ Done* | 6/6 · 19 tests · *real YOLO inference pending on-device run |
 | 3 | Agentic Decision Core (hierarchical multi-agent) | ✅ Done | 6/6 · 29 agent + 3 backend tests · LangGraph parity verified |
-| 4 | Frontend: Dashboard, Displays & TTS | 🔲 Not started | 0/8 |
+| 4 | Frontend: Dashboard, Displays & TTS | ✅ Done | 8/8 · dashboard + signage + gate + voice |
 | 5 | Integration, Privacy Proof & Demo | 🔲 Not started | 0/8 |
 
 ---
@@ -76,17 +76,21 @@ Tests: 29 passed (including 2 LangGraph parity tests).
 
 ---
 
-## Phase 4 — Frontend: Dashboard, Displays & TTS 🔲
+## Phase 4 — Frontend: Dashboard, Displays & TTS ✅
+Warm wa-modern (Zen Old Mincho + Zen Kaku Gothic), English UI, radial arc gauge, seigaiha + washi texture. React + Tailwind v4 + Recharts + React Router.
+
 | # | Task | Status | Owner | Notes |
 |---|------|--------|-------|-------|
-| 4.1 | PlatformCard component | 🔲 | | |
-| 4.2 | DensityChart (Recharts) | 🔲 | | |
-| 4.3 | AgentActionLog + Override buttons | 🔲 | | plain-English |
-| 4.4 | Wire dashboard to `/ws/dashboard` | 🔲 | | |
-| 4.5 | Gate display + signage boards | 🔲 | | red/green |
-| 4.6 | Simulation "scan" page | 🔲 | | buttons/QR |
-| 4.7 | TTS playback | 🔲 | | ElevenLabs/gTTS |
-| 4.8 | `/api/override` wiring | 🔲 | | |
+| 4.1 | PlatformCard component | ✅ | | arc gauge, zones, HELD badge; reads `count` |
+| 4.2 | DensityChart (Recharts) | ✅ | | threshold bands 60/85, warm theme |
+| 4.3 | AgentActionLog + Override buttons | ✅ | | chips from `actions_taken`, reads nested `decision` |
+| 4.4 | Wire dashboard to `/ws/dashboard` | ✅ | | useBackend; state_update/agent_action/graph_point |
+| 4.5 | Gate display + signage boards | ✅ | | `/display/gate` + `/display/:id` via `/ws/display/{id}` |
+| 4.6 | Simulation "scan" page | ✅ | | scan buttons → /api/scan |
+| 4.7 | TTS playback | ✅ | | browser speechSynthesis (no key); voice toggle in nav |
+| 4.8 | `/api/override` wiring | ✅ | | override button posts `decision_id` |
+
+**Fixed two schema bugs** during this phase: PlatformCard was reading `arrival_count` (backend sends `count`); log read top-level `reasoning` (backend nests under `decision`). Verified live against running backend — full HOLD+REDIRECT+ANNOUNCE+SIGNAGE chain renders.
 
 ---
 
