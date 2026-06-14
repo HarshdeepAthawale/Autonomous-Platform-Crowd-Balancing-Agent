@@ -1,15 +1,16 @@
 # Design Document (UI/UX)
 ### Autonomous Platform Crowd-Balancing Agent
 **Hackathon:** FAR AWAY 2026 (Zuup Japan) — Theme: Railways
-**Status:** Draft v1.2 · **Last updated:** 2026-06-14 · **Aesthetic:** Wa-Modern (Japanese-inspired, English UI)
+**Status:** Draft v1.3 · **Last updated:** 2026-06-14 · **Aesthetic:** Wa-Modern (Japanese-inspired, multilingual UI)
 
 ---
 
 ## 1. Design Philosophy — Wa-Modern
 
 The interface draws from Japanese railway design language (JR / Tokyo Metro / Shinkansen
-signage) and *wabi-sabi* restraint: **calm, precise, and uncluttered**. All UI copy is
-English only — the Japanese influence is expressed through color, spacing, and tone.
+signage) and *wabi-sabi* restraint: **calm, precise, and uncluttered**. The UI is
+**multilingual (English / 日本語 / हिन्दी)** with a runtime language switcher, and the
+Japanese influence also carries through color, spacing, and tone.
 
 1. **Purposeful emptiness (Ma).** Generous whitespace; nothing competes for attention.
    The platform that needs you is the only thing that stands out.
