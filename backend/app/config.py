@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     llm_provider: str = "groq"  # "groq" (free, Llama 3) or "claude"
 
+    # Voice (TTS) — ElevenLabs, proxied server-side (keeps key off the client)
+    elevenlabs_api_key: str = ""
+    elevenlabs_voice_id: str = "EXAVITQu4vr4xnSDxMaL"  # Sarah — clear, reassuring (premade)
+
     @property
     def effective_llm_key(self) -> str:
         """Return the API key for the active provider."""
