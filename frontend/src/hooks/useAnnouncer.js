@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { speakGemini } from '../lib/tts'
 
 // Language → BCP-47 tag used to select the best SpeechSynthesis voice.
 const VOICE_LANG = {
@@ -21,8 +22,8 @@ function pickVoice(voices, lang) {
   return null
 }
 
-// Speak arbitrary text immediately. Used for welcome messages and zone-change alerts.
-export function speakText(text, lang) {
+// Browser SpeechSynthesis path — used only as a fallback if Gemini audio fails.
+function speakBrowser(text, lang) {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
   if (!text) return
   const u = new SpeechSynthesisUtterance(text)
@@ -47,6 +48,13 @@ export function speakText(text, lang) {
   }
 }
 
+// Speak arbitrary text immediately (welcome message, zone-change alerts).
+// Prefers natural Gemini audio; falls back to the browser engine on any failure.
+export function speakText(text, lang) {
+  if (!text) return
+  speakGemini(text, lang).catch(() => speakBrowser(text, lang))
+}
+
 /**
  * Speaks an announcement via the browser SpeechSynthesis API.
  *
@@ -69,31 +77,7 @@ export function useAnnouncer(payload, lang, enabled) {
     const text = payload.texts[lang] || payload.texts.en
     if (!text) return
 
-    const u = new SpeechSynthesisUtterance(text)
-    u.rate   = 0.92   // calm, station-announcement pace
-    u.pitch  = 1.0
-    u.volume = 1.0
-    u.lang   = (VOICE_LANG[lang] || VOICE_LANG.en)[0]
-
-    // voiceschanged may not have fired yet — try both sync and async paths.
-    const trySpeak = () => {
-      const voices = window.speechSynthesis.getVoices()
-      if (voices.length) {
-        const voice = pickVoice(voices, lang)
-        if (voice) u.voice = voice
-      }
-      window.speechSynthesis.cancel()
-      window.speechSynthesis.speak(u)
-    }
-
-    const voices = window.speechSynthesis.getVoices()
-    if (voices.length) {
-      trySpeak()
-    } else {
-      window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.onvoiceschanged = null
-        trySpeak()
-      }
-    }
+    // Natural Gemini audio first; browser engine only if that fails.
+    speakGemini(text, lang).catch(() => speakBrowser(text, lang))
   }, [payload, lang, enabled])
 }
