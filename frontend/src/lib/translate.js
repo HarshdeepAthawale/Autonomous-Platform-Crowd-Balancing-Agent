@@ -1,10 +1,9 @@
 // UI-string translation via our backend /api/translate (Groq-powered).
 // English is the single source of truth; JA/HI are AI-translated on demand and
 // cached in localStorage so repeat language switches are instant. The Groq key
-// stays server-side. (No Gemini anywhere — translation + announcements use Groq,
-// voice uses ElevenLabs.)
+// stays server-side. Translation + announcements use Groq; voice uses ElevenLabs.
 
-const CACHE_VERSION = 'v3'   // bumped: invalidates any stale Gemini/partial cache
+const CACHE_VERSION = 'v3'   // bump to invalidate any stale/partial cached translations
 
 /**
  * Translate the full English string map to targetLang via the backend.

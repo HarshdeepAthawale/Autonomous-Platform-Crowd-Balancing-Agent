@@ -11,7 +11,7 @@ export const LANGS = [
 ]
 
 // English source strings — the single source of truth for all UI text.
-// Japanese and Hindi are fetched from Gemini API and cached in localStorage.
+// Japanese and Hindi are translated on demand via the backend (Groq) and cached.
 const EN = {
   'app.title': 'Crowd Balancing Agent',
   'nav.dashboard': 'Dashboard',
@@ -142,7 +142,7 @@ export function I18nProvider({ children }) {
       return
     }
     setTranslating(true)
-    // Show English immediately while Gemini translates (or serves from cache).
+    // Show English immediately while the backend (Groq) translates (or serves from cache).
     setStrings(EN)
     translateStrings(EN, lang).then(result => {
       setStrings(result)
